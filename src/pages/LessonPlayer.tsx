@@ -233,7 +233,12 @@ export default function LessonPlayer() {
       <main className="flex-1 flex flex-col relative overflow-hidden bg-white">
         <header className="h-16 border-b border-zinc-200 flex items-center px-4 shrink-0 justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label={sidebarOpen ? "Collapse Syllabus" : "Expand Syllabus"}
+            >
               <Menu className="w-5 h-5 text-zinc-500" />
             </Button>
             <h1 className="font-bold text-zinc-900">Module 3: Social Engineering</h1>
