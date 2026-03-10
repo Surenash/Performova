@@ -2,7 +2,7 @@ import { useState } from "react"
 import { motion, AnimatePresence, Reorder } from "framer-motion"
 import { ShieldCheck, ShieldAlert, GripVertical, CheckCircle2, XCircle, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { cn, shuffleArray } from "@/lib/utils"
 
 const ITEMS = [
     { id: "1", text: "Using 'Password123' for all accounts", category: "risk", hint: "Reuse and weak patterns are easy to crack." },
@@ -14,7 +14,7 @@ const ITEMS = [
 ]
 
 export default function SecuritySortGame() {
-    const [items, setItems] = useState(ITEMS.sort(() => Math.random() - 0.5))
+    const [items, setItems] = useState(shuffleArray(ITEMS))
     const [safeList, setSafeList] = useState<typeof ITEMS>([])
     const [riskList, setRiskList] = useState<typeof ITEMS>([])
     const [showResults, setShowResults] = useState(false)
@@ -26,17 +26,16 @@ export default function SecuritySortGame() {
     }
 
     const handleReset = () => {
-        setItems(ITEMS.sort(() => Math.random() - 0.5))
+        setItems(shuffleArray(ITEMS))
         setSafeList([])
         setRiskList([])
         setShowResults(false)
     }
 
     const calculateScore = () => {
-        let correct = 0
-        safeList.forEach(item => { if (item.category === 'safe') correct++ })
-        riskList.forEach(item => { if (item.category === 'risk') correct++ })
-        return correct
+        const safeCorrect = safeList.reduce((acc, item) => item.category === 'safe' ? acc + 1 : acc, 0)
+        const riskCorrect = riskList.reduce((acc, item) => item.category === 'risk' ? acc + 1 : acc, 0)
+        return safeCorrect + riskCorrect
     }
 
     const score = calculateScore()

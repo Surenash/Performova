@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Lock, Eye, EyeOff, ShieldCheck, ShieldAlert, CheckCircle2, XCircle, Info, Clock, Zap } from "lucide-react"
+import { motion } from "framer-motion"
+import { Lock, Eye, EyeOff, ShieldAlert, CheckCircle2, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
