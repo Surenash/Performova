@@ -275,6 +275,7 @@ export default function LearnerDashboard() {
               <button
                 onClick={() => setIsChatOpen(false)}
                 className="text-white hover:bg-white/20 p-1 rounded-full transition-colors"
+                aria-label="Close AI Chat"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -300,7 +301,10 @@ export default function LearnerDashboard() {
                   placeholder="Ask a question..."
                   className="flex-1 bg-zinc-100 border-none rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
-                <button className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white shrink-0 hover:bg-indigo-700 transition-colors">
+                <button
+                  className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white shrink-0 hover:bg-indigo-700 transition-colors"
+                  aria-label="Send message"
+                >
                   <Send className="w-4 h-4 ml-1" />
                 </button>
               </div>
@@ -310,6 +314,7 @@ export default function LearnerDashboard() {
           <button
             onClick={() => setIsChatOpen(true)}
             className="w-14 h-14 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-xl hover:bg-indigo-700 hover:scale-105 transition-all duration-200"
+            aria-label="Open AI Chat"
           >
             <MessageSquare className="w-6 h-6" />
           </button>
