@@ -67,9 +67,15 @@ export default function AdminCourseGenerator() {
     files.forEach(file => formData.append("files", file))
 
     try {
+      // Get the mock auth token (usually stored in context or local storage)
+      const token = localStorage.getItem("access_token")
+
       // Step 1: Upload and Parse
       const uploadRes = await fetch('/api/admin/generate-course', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formData,
       })
 
@@ -100,9 +106,13 @@ export default function AdminCourseGenerator() {
 
   const handlePublish = async () => {
     try {
+      const token = localStorage.getItem("access_token")
       const res = await fetch("/api/admin/save-course", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(generatedCourse),
       })
       if (!res.ok) throw new Error("Failed to save course")

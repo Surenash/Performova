@@ -63,6 +63,7 @@ export default function LessonPlayer() {
             title: lesson.title,
             duration: "5:00",
             content: lesson.content,
+            video_url: lesson.video_url,
             questions: lesson.questions || []
           }))
 
@@ -110,10 +111,19 @@ export default function LessonPlayer() {
           <div className="space-y-6">
              <div className="mb-8">
                <Badge variant="outline" className="mb-4 text-indigo-600 border-indigo-200 bg-indigo-50 flex w-fit items-center gap-1.5">
-                 <BookOpen className="w-3.5 h-3.5" /> Reading Material
+                 <BookOpen className="w-3.5 h-3.5" /> {currentStep.video_url ? "Video Lesson" : "Reading Material"}
                </Badge>
                <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
              </div>
+
+             {currentStep.video_url && (
+               <div className="mb-8 rounded-xl overflow-hidden shadow-lg border border-zinc-200 bg-black aspect-video flex items-center justify-center">
+                 <video controls className="w-full h-full max-h-[600px]" src={currentStep.video_url}>
+                   Your browser does not support the video tag.
+                 </video>
+               </div>
+             )}
+
              <div className="prose prose-zinc max-w-none bg-zinc-50 p-8 rounded-2xl border border-zinc-200 shadow-sm leading-relaxed whitespace-pre-wrap">
                {currentStep.content}
              </div>

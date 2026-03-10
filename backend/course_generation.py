@@ -6,9 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import os
 from google import genai
 import json
+import uuid
+import shutil
 from backend.database import get_db
-from backend.models import Course, Lesson, Question
+from backend.models import Course, Lesson, Question, User
+from backend.auth import get_current_active_user
 from pydantic import BaseModel
+from backend.video_processing import transcode_video, transcribe_video_audio, upload_to_s3, generate_presigned_url
 
 router = APIRouter()
 
@@ -30,29 +34,62 @@ def extract_text_from_pdf(file_content: bytes) -> str:
         print(f"Error extracting PDF: {e}")
         return ""
 
-def mock_extract_text_from_video(filename: str) -> str:
+async def process_video_securely(file: UploadFile, content: bytes) -> dict:
     """
-    Mock function representing extracting subtitles from a video via YouTube fallback.
-    In a real scenario, this would involve uploading to YouTube via API, waiting for processing,
-    and then fetching the auto-generated captions.
+    Saves the video to disk temporarily, transcodes it, uploads it to S3,
+    and transcribes the audio securely using local Whisper.
+    Returns the transcription and the generated S3 signed URL.
     """
-    return f"This is mock transcribed text extracted from the video file: {filename}. It talks about important concepts related to cybersecurity and phishing."
+    temp_id = str(uuid.uuid4())
+    original_path = f"/tmp/{temp_id}_original_{file.filename}"
+    transcoded_path = f"/tmp/{temp_id}_optimized.mp4"
 
-def process_file(file: UploadFile, content: bytes) -> str:
-    """Process a single file and return its extracted text."""
+    # Save to disk
+    with open(original_path, "wb") as f:
+        f.write(content)
+
+    try:
+        # Transcode video to standard MP4
+        print(f"Transcoding video: {original_path}...")
+        success = transcode_video(original_path, transcoded_path)
+        final_video_path = transcoded_path if success else original_path
+
+        # Upload to S3 (Securely)
+        print("Uploading to secure S3 bucket...")
+        object_key = upload_to_s3(final_video_path)
+        # Store the object_key instead of the expiring URL
+
+        # Transcribe Audio using local Whisper
+        print("Transcribing audio locally with Faster-Whisper...")
+        transcription = transcribe_video_audio(final_video_path)
+
+        return {
+            "text": transcription,
+            "video_url": object_key
+        }
+
+    finally:
+        # Cleanup temp files
+        if os.path.exists(original_path):
+            os.remove(original_path)
+        if os.path.exists(transcoded_path):
+            os.remove(transcoded_path)
+
+async def process_file(file: UploadFile, content: bytes) -> dict:
+    """Process a single file and return its extracted text and potential media URL."""
     filename = file.filename.lower()
     if filename.endswith(".pdf"):
-        return extract_text_from_pdf(content)
+        return {"text": extract_text_from_pdf(content), "video_url": None}
     elif filename.endswith(".txt") or filename.endswith(".md"):
-        return content.decode("utf-8", errors="ignore")
+        return {"text": content.decode("utf-8", errors="ignore"), "video_url": None}
     elif filename.endswith(".mp4") or filename.endswith(".mov"):
-        return mock_extract_text_from_video(filename)
+        return await process_video_securely(file, content)
     else:
         # Fallback for unsupported types
-        return ""
+        return {"text": "", "video_url": None}
 
 @router.post("/admin/generate-course")
-async def generate_course(files: List[UploadFile] = File(...)):
+async def generate_course(files: List[UploadFile] = File(...), current_user: User = Depends(get_current_active_user)):
     if not files:
         raise HTTPException(status_code=400, detail="No files uploaded")
 
@@ -88,11 +125,19 @@ async def generate_course(files: List[UploadFile] = File(...)):
         }
 
     combined_text = ""
+    video_urls = []
+
     for file in files:
         content = await file.read()
-        extracted = process_file(file, content)
-        if extracted:
-            combined_text += f"\n\n--- Source: {file.filename} ---\n{extracted}"
+        result = await process_file(file, content)
+
+        extracted_text = result.get("text", "")
+        vid_url = result.get("video_url")
+
+        if extracted_text:
+            combined_text += f"\n\n--- Source: {file.filename} ---\n{extracted_text}"
+        if vid_url:
+            video_urls.append({"filename": file.filename, "key": vid_url})
 
     if not combined_text.strip():
         raise HTTPException(status_code=400, detail="Could not extract text from any of the provided files.")
@@ -101,6 +146,13 @@ async def generate_course(files: List[UploadFile] = File(...)):
     max_chars = 100000
     if len(combined_text) > max_chars:
         combined_text = combined_text[:max_chars]
+
+    # Pass along video keys to the AI so it can optionally embed them in lessons
+    video_context = ""
+    if video_urls:
+        video_context = "\nI have also processed some video files. If the material from a video is used in a text lesson, you MUST add a field 'video_url' to that lesson's JSON object and set it exactly to the provided Video Key.\n"
+        for v in video_urls:
+             video_context += f"Video Key ({v['filename']}): {v['key']}\n"
 
     prompt = f"""
     You are an expert instructional designer and curriculum developer.
@@ -115,6 +167,7 @@ async def generate_course(files: List[UploadFile] = File(...)):
             - title: Lesson/Quiz title
             - type: "lesson" (for text content) OR "quiz" (for interactive questions)
             - content: (if type is "lesson") The instructional text/markdown for the lesson.
+            - video_url: (optional) A string key if a video accompanies this lesson.
             - questions: (if type is "quiz") A list of interactive questions.
 
     For quizzes, you MUST include a mix of the following question types:
@@ -125,6 +178,7 @@ async def generate_course(files: List[UploadFile] = File(...)):
     5. "drag_drop_sort": Needs 'question', 'items' (array of strings in the correct order).
 
     Return ONLY a valid JSON object. Do not include markdown formatting like ```json.
+    {video_context}
 
     --- SOURCE MATERIAL ---
     {combined_text}
@@ -160,7 +214,7 @@ class SaveCourseRequest(BaseModel):
     modules: List[Dict[str, Any]]
 
 @router.post("/admin/save-course")
-async def save_course(request: SaveCourseRequest, db: AsyncSession = Depends(get_db)):
+async def save_course(request: SaveCourseRequest, db: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_active_user)):
     # Create the Course
     new_course = Course(
         title=request.title,
@@ -181,6 +235,7 @@ async def save_course(request: SaveCourseRequest, db: AsyncSession = Depends(get
                 title=f"{module.get('title', 'Module')} - {item.get('title', 'Lesson')}",
                 type=item.get("type", "lesson"),
                 content=item.get("content", ""),
+                video_url=item.get("video_url"),
                 order=lesson_order
             )
             db.add(new_lesson)

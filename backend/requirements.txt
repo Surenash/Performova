@@ -12,3 +12,6 @@ alembic
 pydantic
 pydantic-settings
 PyPDF2
+boto3
+faster-whisper
+ffmpeg-python
