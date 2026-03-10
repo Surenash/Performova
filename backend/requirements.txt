@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+sqlalchemy[asyncio]
+aiosqlite
+fastapi-matrix-admin
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+google-genai
+alembic
+pydantic
+pydantic-settings
