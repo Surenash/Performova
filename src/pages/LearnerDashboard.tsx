@@ -173,69 +173,7 @@ export default function LearnerDashboard() {
             </div>
           </div>
 
-          {/* Practice Zone */}
-          <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                <Gamepad2 className="w-5 h-5 text-purple-600" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-zinc-900">Practice Zone</h3>
-                <p className="text-sm text-zinc-500">Sharpen your skills with interactive exercises</p>
-              </div>
-            </div>
-
-            <Tabs defaultValue="quiz" className="w-full">
-              <TabsList className="w-full grid grid-cols-3 mb-6">
-                <TabsTrigger value="quiz">Quick Quiz</TabsTrigger>
-                <TabsTrigger value="match">Match Game</TabsTrigger>
-                <TabsTrigger value="flashcards">Flashcards</TabsTrigger>
-              </TabsList>
-              <TabsContent value="quiz">
-                <div className="flex justify-center">
-                  <QuickQuizDemo />
-                </div>
-              </TabsContent>
-              <TabsContent value="match">
-                <div className="max-w-md mx-auto">
-                  <ProtocolMatchGame />
-                </div>
-              </TabsContent>
-              <TabsContent value="flashcards">
-                <div className="flex justify-center">
-                  <FlashcardDemo />
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          {/* Video Lesson */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-                <Video className="w-5 h-5 text-red-600" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-zinc-900">Video Lesson</h3>
-                <p className="text-sm text-zinc-500">Watch and learn at your own pace</p>
-              </div>
-            </div>
-            <VideoPlayer />
-          </div>
-
-          {/* Reading Material */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-teal-600" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-zinc-900">Reading Material</h3>
-                <p className="text-sm text-zinc-500">Deep-dive into today's topic</p>
-              </div>
-            </div>
-            <ContentReader />
-          </div>
+          {/* Lessons will now be handled inside the LessonPlayer */}
         </div>
 
         {/* Sidebar (Right) */}
