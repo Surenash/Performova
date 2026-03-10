@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, BookOpen, Users, Settings, Bell, Search } from "lucide-react"
+import { LayoutDashboard, BookOpen, Users, Settings, Bell, Search, Sparkles } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function DashboardLayout({ role }: { role: "admin" | "learner" }) {
@@ -10,6 +10,7 @@ export default function DashboardLayout({ role }: { role: "admin" | "learner" })
     { name: "Overview", href: "/admin", icon: LayoutDashboard },
     { name: "Team Progress", href: "/admin/team", icon: Users },
     { name: "Content Library", href: "/admin/content", icon: BookOpen },
+    { name: "Generate Course", href: "/admin/generate-course", icon: Sparkles },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ]
 
