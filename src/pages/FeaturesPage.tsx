@@ -72,19 +72,6 @@ const features = [
         ],
     },
     {
-        icon: Upload,
-        title: "Custom Content Upload",
-        description:
-            "Upload your own videos, documents, and materials. We provide the learning infrastructure, you bring the knowledge.",
-        color: "amber",
-        details: [
-            "Supports PDF, MP4, SCORM",
-            "Automatic quiz generation via AI",
-            "Version control built-in",
-            "Drag & drop interface",
-        ],
-    },
-    {
         icon: MessageSquare,
         title: "24/7 AI Coaching",
         description:
@@ -108,6 +95,19 @@ const features = [
             "Role-based access control",
             "Data encryption at rest",
             "Audit logging",
+        ],
+    },
+    {
+        icon: Upload,
+        title: "Custom Content Upload",
+        description:
+            "Upload your own videos, documents, and materials. We provide the learning infrastructure, you bring the knowledge.",
+        color: "amber",
+        details: [
+            "Supports PDF, MP4, SCORM",
+            "Automatic quiz generation via AI",
+            "Version control built-in",
+            "Drag & drop interface",
         ],
     },
 ]

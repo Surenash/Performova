@@ -380,35 +380,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Feature 4: Custom Content Upload (Emergent) */}
-          <div className="grid md:grid-cols-2 gap-16 items-center">
-            <div className="order-2 md:order-1 bg-zinc-50 rounded-3xl p-8 border border-zinc-100 shadow-sm relative overflow-hidden">
-              <div className="relative z-10 bg-white rounded-xl shadow-sm border border-zinc-200 border-dashed p-10 flex flex-col items-center justify-center text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-colors cursor-pointer">
-                <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mb-4">
-                  <Zap className="w-8 h-8 text-zinc-400" />
-                </div>
-                <h4 className="font-bold text-zinc-900 mb-2">Upload Custom Course</h4>
-                <p className="text-sm text-zinc-500 max-w-xs mb-6">Drag and drop PDFs, Videos, or SCORM packages here, or click to browse.</p>
-                <Button size="sm" variant="secondary" className="pointer-events-none">Select Files</Button>
-              </div>
-            </div>
-            <div className="order-1 md:order-2">
-              <Badge variant="outline" className="mb-4">Custom Content</Badge>
-              <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">Bring your own materials.</h2>
-              <p className="text-lg text-zinc-600 mb-6">
-                Upload your own videos, documents, and materials. We provide the learning infrastructure, you bring the knowledge.
-              </p>
-              <ul className="space-y-3">
-                {['Supports PDF, MP4, SCORM', 'Automatic quiz generation via AI', 'Version control built-in'].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-zinc-700">
-                    <CheckCircle2 className="w-5 h-5 text-indigo-500" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          {/* Feature 5: AI Chatbot */}
+          {/* Feature 4: AI Chatbot (Previously Feature 5) */}
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
               <Badge variant="outline" className="mb-4 text-emerald-700 border-emerald-200 bg-emerald-50">24/7 Support</Badge>
@@ -453,6 +425,35 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Feature 5: Custom Content Upload (Previously Feature 4) */}
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div className="order-2 md:order-1 bg-zinc-50 rounded-3xl p-8 border border-zinc-100 shadow-sm relative overflow-hidden">
+              <div className="relative z-10 bg-white rounded-xl shadow-sm border border-zinc-200 border-dashed p-10 flex flex-col items-center justify-center text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-colors cursor-pointer">
+                <div className="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mb-4">
+                  <Zap className="w-8 h-8 text-zinc-400" />
+                </div>
+                <h4 className="font-bold text-zinc-900 mb-2">Upload Custom Course</h4>
+                <p className="text-sm text-zinc-500 max-w-xs mb-6">Drag and drop PDFs, Videos, or SCORM packages here, or click to browse.</p>
+                <Button size="sm" variant="secondary" className="pointer-events-none">Select Files</Button>
+              </div>
+            </div>
+            <div className="order-1 md:order-2">
+              <Badge variant="outline" className="mb-4">Custom Content</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">Bring your own materials.</h2>
+              <p className="text-lg text-zinc-600 mb-6">
+                Upload your own videos, documents, and materials. We provide the learning infrastructure, you bring the knowledge.
+              </p>
+              <ul className="space-y-3">
+                {['Supports PDF, MP4, SCORM', 'Automatic quiz generation via AI', 'Version control built-in'].map((item) => (
+                  <li key={item} className="flex items-center gap-3 text-zinc-700">
+                    <CheckCircle2 className="w-5 h-5 text-indigo-500" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
