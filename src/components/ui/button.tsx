@@ -1,8 +1,13 @@
 import * as React from "react"
+import { motion, HTMLMotionProps } from "framer-motion"
+
+
 import { Slot } from "@radix-ui/react-slot"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = {
+  // ... (omitted for brevity in thinking, but I must provide full context in call)
+
   default: "bg-zinc-900 text-zinc-50 hover:bg-zinc-900/90",
   destructive: "bg-red-500 text-zinc-50 hover:bg-red-500/90",
   outline: "border border-zinc-200 bg-white hover:bg-zinc-100 hover:text-zinc-900",
@@ -19,15 +24,16 @@ const buttonSizes = {
 }
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  extends HTMLMotionProps<"button"> {
   asChild?: boolean
   variant?: keyof typeof buttonVariants
   size?: keyof typeof buttonSizes
 }
 
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
+    const Comp = asChild ? motion(Slot) : motion.button
     return (
       <Comp
         className={cn(
@@ -36,12 +42,15 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           buttonSizes[size],
           className
         )}
-        ref={ref}
+        ref={ref as any}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         {...props}
       />
     )
   }
 )
 Button.displayName = "Button"
+
 
 export { Button, buttonVariants }

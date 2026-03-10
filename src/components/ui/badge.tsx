@@ -1,10 +1,12 @@
 import * as React from "react"
+import { motion, HTMLMotionProps } from "framer-motion"
+
 import { cn } from "@/lib/utils"
 
-export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface BadgeProps extends HTMLMotionProps<"div"> {
   variant?: "default" | "secondary" | "destructive" | "outline"
-  children?: React.ReactNode
 }
+
 
 function Badge({ className, variant = "default", ...props }: BadgeProps) {
   const variants = {
@@ -14,7 +16,8 @@ function Badge({ className, variant = "default", ...props }: BadgeProps) {
     outline: "text-zinc-950",
   }
   return (
-    <div
+    <motion.div
+      whileHover={{ scale: 1.05 }}
       className={cn(
         "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2",
         variants[variant],
@@ -24,5 +27,6 @@ function Badge({ className, variant = "default", ...props }: BadgeProps) {
     />
   )
 }
+
 
 export { Badge }

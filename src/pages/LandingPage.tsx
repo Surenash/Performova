@@ -7,6 +7,8 @@ import { CheckCircle2, PlayCircle, Trophy, Zap, Flame, Award, MessageSquare, Pla
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Link } from "react-router-dom"
+import QuickQuizDemo from "@/components/demos/QuickQuizDemo"
+import ProtocolMatchGame from "@/components/demos/ProtocolMatchGame"
 
 export default function LandingPage() {
   const [annual, setAnnual] = useState(true)
@@ -78,7 +80,7 @@ export default function LandingPage() {
                 </motion.div>
               </motion.div>
 
-              {/* Card 2: Quick Quiz */}
+              {/* Card 2: Interactive Quick Quiz */}
               <motion.div
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
@@ -88,22 +90,8 @@ export default function LandingPage() {
                 <motion.div
                   animate={{ y: [0, 8, 0] }}
                   transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-                  className="bg-white rounded-2xl shadow-xl border border-zinc-100 p-6 w-full"
                 >
-                  <h4 className="font-bold text-zinc-900 mb-2">Quick Quiz</h4>
-                  <p className="text-sm text-zinc-600 mb-4">What is the first step in a phishing attack?</p>
-                  <div className="space-y-2">
-                    <div className="p-3 rounded-lg border border-zinc-200 text-sm text-zinc-600 hover:border-indigo-500 cursor-pointer transition-colors">
-                      Clicking a suspicious link
-                    </div>
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      className="p-3 rounded-lg border-2 border-emerald-500 bg-emerald-50 text-sm text-emerald-700 font-medium cursor-pointer flex justify-between items-center"
-                    >
-                      Receiving a deceptive email
-                      <CheckCircle2 className="w-4 h-4" />
-                    </motion.div>
-                  </div>
+                  <QuickQuizDemo />
                 </motion.div>
               </motion.div>
 
@@ -282,18 +270,8 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="order-2 md:order-1 bg-zinc-50 rounded-3xl p-8 border border-zinc-100 shadow-sm relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-transparent opacity-50"></div>
-              <div className="relative z-10 bg-white rounded-xl shadow-sm border border-zinc-200 p-6">
-                <h4 className="font-bold text-zinc-900 mb-4">Match the protocol to the port</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <div className="p-3 bg-zinc-100 rounded-lg text-center text-sm font-medium border border-dashed border-zinc-300">HTTPS</div>
-                    <div className="p-3 bg-zinc-100 rounded-lg text-center text-sm font-medium border border-dashed border-zinc-300">SSH</div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="p-3 bg-white border-2 border-indigo-100 rounded-lg text-center text-sm font-medium shadow-sm cursor-grab active:cursor-grabbing">Port 443</div>
-                    <div className="p-3 bg-white border-2 border-indigo-100 rounded-lg text-center text-sm font-medium shadow-sm cursor-grab active:cursor-grabbing">Port 22</div>
-                  </div>
-                </div>
+              <div className="relative z-10">
+                <ProtocolMatchGame />
               </div>
             </div>
             <div className="order-1 md:order-2">

@@ -37,8 +37,8 @@ export default function MainLayout() {
 
           {/* Nav Links */}
           <nav className="hidden md:flex items-center gap-1">
-            <Link to="#features" className={cn("px-3 py-1.5 text-sm font-medium rounded-full transition-colors", isDark ? "text-zinc-300 hover:text-white hover:bg-zinc-800" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100")}>Features</Link>
-            <Link to="#pricing" className={cn("px-3 py-1.5 text-sm font-medium rounded-full transition-colors", isDark ? "text-zinc-300 hover:text-white hover:bg-zinc-800" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100")}>Pricing</Link>
+            <Link to="/features" className={cn("px-3 py-1.5 text-sm font-medium rounded-full transition-colors", isDark ? "text-zinc-300 hover:text-white hover:bg-zinc-800" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100")}>Features</Link>
+            <Link to="/pricing" className={cn("px-3 py-1.5 text-sm font-medium rounded-full transition-colors", isDark ? "text-zinc-300 hover:text-white hover:bg-zinc-800" : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100")}>Pricing</Link>
           </nav>
 
           {/* Actions */}
