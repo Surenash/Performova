@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle2, XCircle, ChevronLeft, Menu, PlayCircle, FileText, MousePointer2, Gamepad2, Video, BookOpen, Flame, Trophy, Play } from "lucide-react"
+import { CheckCircle2, XCircle, ChevronLeft, Menu, PlayCircle, FileText, MousePointer2, Gamepad2, Video, BookOpen, Flame, Trophy, Play, AlertTriangle, Lock, ShieldCheck, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -13,14 +13,19 @@ import ContentReader from "@/components/demos/ContentReader"
 import ProtocolMatchGame from "@/components/demos/ProtocolMatchGame"
 import QuickQuizDemo from "@/components/demos/QuickQuizDemo"
 import FlashcardDemo from "@/components/demos/FlashcardDemo"
+import PhishingSimulator from "@/components/demos/PhishingSimulator"
+import SecuritySortGame from "@/components/demos/SecuritySortGame"
+import PasswordChallenge from "@/components/demos/PasswordChallenge"
+import ChatSimulator from "@/components/demos/ChatSimulator"
 
 const SYLLABUS = [
   { id: 1, title: "Introduction Video", type: "video", duration: "2:30" },
-  { id: 2, title: "Identifying Suspicious Links", type: "interactive", duration: "5:00" },
-  { id: 3, title: "Reading: Reporting Protocols", type: "reading", duration: "3:00" },
-  { id: 4, title: "Protocol Match Challenge", type: "game", duration: "4:00" },
-  { id: 5, title: "Flashcard Review", type: "flashcards", duration: "3:00" },
-  { id: 6, title: "Final Knowledge Check", type: "quiz", duration: "4:00" },
+  { id: 2, title: "Email Inspector", type: "phishing", duration: "5:00" },
+  { id: 3, title: "Password Wall", type: "password", duration: "4:00" },
+  { id: 4, title: "Reading: Reporting Protocols", type: "reading", duration: "3:00" },
+  { id: 5, title: "Security Sort", type: "sort", duration: "4:00" },
+  { id: 6, title: "Social Engineering Chat", type: "chat", duration: "6:00" },
+  { id: 7, title: "Final Knowledge Check", type: "quiz", duration: "4:00" },
 ]
 
 export default function LessonPlayer() {
@@ -81,58 +86,63 @@ export default function LessonPlayer() {
             <ContentReader />
           </div>
         )
-      case 'interactive':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8">
-              <Badge variant="outline" className="mb-4 text-indigo-600 border-indigo-200 bg-indigo-50 flex w-fit items-center gap-1.5">
-                <MousePointer2 className="w-3.5 h-3.5" /> Interactive Exercise
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Apply what you've learned in this hands-on simulation.</p>
-            </div>
-            {/* Keeping the existing URL spotter for this specific ID for demo */}
-            <div className="bg-zinc-50 rounded-2xl p-8 border border-zinc-200">
-              <p className="text-zinc-700 mb-6 font-medium">Which of the following links is most likely a phishing attempt?</p>
-              <div className="space-y-4 max-w-lg">
-                {["https://www.paypal.com/login", "https://www.paypaI.com/secure", "https://account.paypal.com/auth"].map((url, i) => (
-                  <button key={i} className="w-full text-left p-4 rounded-xl border border-zinc-200 bg-white hover:border-indigo-500 transition-colors font-mono text-sm">
-                    {url}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )
-      case 'game':
+      case 'phishing':
         return (
           <div className="space-y-6">
             <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-purple-600 border-purple-200 bg-purple-50 mx-auto flex w-fit items-center gap-1.5">
-                <Gamepad2 className="w-3.5 h-3.5" /> Practice Zone: Match Game
+              <Badge variant="outline" className="mb-4 text-red-600 border-red-200 bg-red-50 mx-auto flex w-fit items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5" /> Interactive Sandbox
               </Badge>
               <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Match the security protocol to its correct description to proceed.</p>
+              <p className="text-lg text-zinc-600">Can you spot the red flags in this suspicious email?</p>
             </div>
             <div className="flex justify-center">
-              <div className="max-w-md w-full">
-                <ProtocolMatchGame />
-              </div>
+              <PhishingSimulator />
             </div>
           </div>
         )
-      case 'flashcards':
+      case 'password':
         return (
           <div className="space-y-6">
             <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-amber-600 border-amber-200 bg-amber-50 mx-auto flex w-fit items-center gap-1.5">
-                <Flame className="w-3.5 h-3.5" /> Study Mode: Flashcards
+              <Badge variant="outline" className="mb-4 text-indigo-600 border-indigo-200 bg-indigo-50 mx-auto flex w-fit items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5" /> Security Challenge
               </Badge>
               <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Review key terms and definitions before the final assessment.</p>
+              <p className="text-lg text-zinc-600">Think your password is strong? Let's put it to the test.</p>
             </div>
             <div className="flex justify-center">
-              <FlashcardDemo />
+              <PasswordChallenge />
+            </div>
+          </div>
+        )
+      case 'sort':
+        return (
+          <div className="space-y-6">
+            <div className="mb-8 text-center max-w-xl mx-auto">
+              <Badge variant="outline" className="mb-4 text-emerald-600 border-emerald-200 bg-emerald-50 mx-auto flex w-fit items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5" /> Interactive Sorting
+              </Badge>
+              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
+              <p className="text-lg text-zinc-600">Review your daily habits and decide if they are safe or a security risk.</p>
+            </div>
+            <div className="flex justify-center">
+              <SecuritySortGame />
+            </div>
+          </div>
+        )
+      case 'chat':
+        return (
+          <div className="space-y-6">
+            <div className="mb-8 text-center max-w-xl mx-auto">
+              <Badge variant="outline" className="mb-4 text-indigo-600 border-indigo-200 bg-indigo-50 mx-auto flex w-fit items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5" /> Social Engineering Sim
+              </Badge>
+              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
+              <p className="text-lg text-zinc-600">An attacker is trying to trick you. Choose your responses wisely.</p>
+            </div>
+            <div className="flex justify-center">
+              <ChatSimulator />
             </div>
           </div>
         )
@@ -266,5 +276,3 @@ export default function LessonPlayer() {
     </div>
   )
 }
-
-
