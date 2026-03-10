@@ -33,10 +33,9 @@ export default function SecuritySortGame() {
     }
 
     const calculateScore = () => {
-        let correct = 0
-        safeList.forEach(item => { if (item.category === 'safe') correct++ })
-        riskList.forEach(item => { if (item.category === 'risk') correct++ })
-        return correct
+        const safeCorrect = safeList.reduce((acc, item) => item.category === 'safe' ? acc + 1 : acc, 0)
+        const riskCorrect = riskList.reduce((acc, item) => item.category === 'risk' ? acc + 1 : acc, 0)
+        return safeCorrect + riskCorrect
     }
 
     const score = calculateScore()
