@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { CheckCircle2, XCircle, ChevronLeft, Menu, PlayCircle, FileText, MousePointer2, Gamepad2, Video, BookOpen, Flame, Trophy, Play, AlertTriangle, Lock, ShieldCheck, MessageSquare } from "lucide-react"
+import { CheckCircle2, XCircle, ChevronLeft, Menu, PlayCircle, FileText, MousePointer2, Gamepad2, Video, BookOpen, Flame, Trophy, Play, AlertTriangle, Lock, ShieldCheck, MessageSquare, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -17,8 +17,13 @@ import PhishingSimulator from "@/components/demos/PhishingSimulator"
 import SecuritySortGame from "@/components/demos/SecuritySortGame"
 import PasswordChallenge from "@/components/demos/PasswordChallenge"
 import ChatSimulator from "@/components/demos/ChatSimulator"
+import MultipleChoice from "@/components/demos/MultipleChoice"
+import TrueFalse from "@/components/demos/TrueFalse"
+import FillInTheBlank from "@/components/demos/FillInTheBlank"
+import MatchThePair from "@/components/demos/MatchThePair"
+import DragDropSort from "@/components/demos/DragDropSort"
 
-const SYLLABUS = [
+const DEFAULT_SYLLABUS = [
   { id: 1, title: "Introduction Video", type: "video", duration: "2:30" },
   { id: 2, title: "Email Inspector", type: "phishing", duration: "5:00" },
   { id: 3, title: "Password Wall", type: "password", duration: "4:00" },
@@ -34,9 +39,45 @@ export default function LessonPlayer() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<number[]>([1]) // First one "done" for demo
+  const [courseData, setCourseData] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const currentStep = SYLLABUS[currentStepIndex]
-  const progress = useMemo(() => Math.round(((currentStepIndex) / SYLLABUS.length) * 100), [currentStepIndex])
+  const SYLLABUS = courseData?.lessons || DEFAULT_SYLLABUS
+  const currentStep = SYLLABUS[currentStepIndex] || {}
+  const progress = useMemo(() => Math.round(((currentStepIndex) / (SYLLABUS.length || 1)) * 100), [currentStepIndex, SYLLABUS])
+
+  useEffect(() => {
+    const fetchCourse = async () => {
+      if (!courseId) {
+        setIsLoading(false)
+        return
+      }
+      try {
+        const res = await fetch(`/api/courses/${courseId}`)
+        if (res.ok) {
+          const data = await res.json()
+
+          const formattedLessons = data.lessons.map((lesson: any) => ({
+            id: lesson.id,
+            type: lesson.type, // 'lesson', 'quiz'
+            title: lesson.title,
+            duration: "5:00",
+            content: lesson.content,
+            questions: lesson.questions || []
+          }))
+
+          formattedLessons.sort((a: any, b: any) => a.order - b.order)
+          setCourseData({ ...data, lessons: formattedLessons })
+        }
+      } catch (e) {
+        console.error("Failed to fetch course", e)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCourse()
+  }, [courseId])
 
   const handleNext = () => {
     if (currentStepIndex < SYLLABUS.length - 1) {
@@ -46,7 +87,6 @@ export default function LessonPlayer() {
       setCurrentStepIndex(currentStepIndex + 1)
       window.scrollTo(0, 0)
     } else {
-      // Completed last step
       navigate('/learner')
     }
   }
@@ -58,7 +98,98 @@ export default function LessonPlayer() {
     }
   }
 
+  const handleQuestionComplete = (isCorrect: boolean) => {
+    console.log("Question complete:", isCorrect)
+  }
+
   const renderContent = () => {
+    // Handle dynamic backend courses
+    if (courseData) {
+      if (currentStep.type === 'lesson') {
+        return (
+          <div className="space-y-6">
+             <div className="mb-8">
+               <Badge variant="outline" className="mb-4 text-indigo-600 border-indigo-200 bg-indigo-50 flex w-fit items-center gap-1.5">
+                 <BookOpen className="w-3.5 h-3.5" /> Reading Material
+               </Badge>
+               <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
+             </div>
+             <div className="prose prose-zinc max-w-none bg-zinc-50 p-8 rounded-2xl border border-zinc-200 shadow-sm leading-relaxed whitespace-pre-wrap">
+               {currentStep.content}
+             </div>
+          </div>
+        )
+      }
+
+      if (currentStep.type === 'quiz') {
+        return (
+          <div className="space-y-12">
+            <div className="text-center max-w-xl mx-auto">
+              <Badge variant="outline" className="mb-4 text-emerald-600 border-emerald-200 bg-emerald-50 mx-auto flex w-fit items-center gap-1.5">
+                <Trophy className="w-3.5 h-3.5" /> Interactive Quiz
+              </Badge>
+              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
+            </div>
+
+            <div className="space-y-16">
+              {currentStep.questions?.map((q: any, idx: number) => {
+                const config = typeof q.config === 'string' ? JSON.parse(q.config) : q.config
+
+                return (
+                  <div key={idx} className="bg-white p-8 rounded-2xl shadow-sm border border-zinc-200">
+                    {q.type === 'multiple_choice' && (
+                      <MultipleChoice
+                        question={q.question_text}
+                        options={config.options}
+                        correctAnswer={config.correct_answer}
+                        onComplete={handleQuestionComplete}
+                      />
+                    )}
+                    {q.type === 'true_false' && (
+                      <TrueFalse
+                        question={q.question_text}
+                        correctAnswer={config.correct_answer}
+                        onComplete={handleQuestionComplete}
+                      />
+                    )}
+                    {q.type === 'fill_in_the_blank' && (
+                      <FillInTheBlank
+                        question={q.question_text}
+                        correctAnswer={config.correct_answer}
+                        onComplete={handleQuestionComplete}
+                      />
+                    )}
+                    {q.type === 'drag_drop_sort' && (
+                      <DragDropSort
+                        question={q.question_text}
+                        items={config.items}
+                        onComplete={handleQuestionComplete}
+                      />
+                    )}
+                    {q.type === 'match_the_pair' && (
+                      <MatchThePair
+                        question={q.question_text}
+                        pairs={config.pairs}
+                        onComplete={handleQuestionComplete}
+                      />
+                    )}
+                    {!['multiple_choice', 'true_false', 'fill_in_the_blank', 'drag_drop_sort', 'match_the_pair'].includes(q.type) && (
+                       <p className="text-zinc-500 italic">Unsupported question format.</p>
+                    )}
+                  </div>
+                )
+              })}
+
+              {(!currentStep.questions || currentStep.questions.length === 0) && (
+                <p className="text-center text-zinc-500 italic">No questions found for this quiz.</p>
+              )}
+            </div>
+          </div>
+        )
+      }
+    }
+
+    // Default static demo
     switch (currentStep.type) {
       case 'video':
         return (
@@ -184,7 +315,7 @@ export default function LessonPlayer() {
               </Button>
             </div>
             <div className="p-6 flex-1 overflow-y-auto w-[320px]">
-              <h2 className="font-bold text-lg text-zinc-900 mb-2">Cybersecurity Basics</h2>
+              <h2 className="font-bold text-lg text-zinc-900 mb-2">{courseData?.title || "Cybersecurity Basics"}</h2>
               <div className="flex items-center gap-3 mb-6">
                 <Progress value={progress} className="h-2 flex-1" />
                 <span className="text-xs font-medium text-zinc-500">{progress}%</span>
@@ -241,7 +372,7 @@ export default function LessonPlayer() {
             >
               <Menu className="w-5 h-5 text-zinc-500" />
             </Button>
-            <h1 className="font-bold text-zinc-900">Module 3: Social Engineering</h1>
+            <h1 className="font-bold text-zinc-900">{courseData?.title || "Module 3: Social Engineering"}</h1>
           </div>
           <div className="flex items-center gap-3 text-sm font-medium text-zinc-500">
             Step {currentStepIndex + 1} of {SYLLABUS.length}

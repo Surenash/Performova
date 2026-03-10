@@ -5,8 +5,10 @@ aiosqlite
 fastapi-matrix-admin
 python-jose[cryptography]
 passlib[bcrypt]
+bcrypt==4.0.1
 python-multipart
 google-genai
 alembic
 pydantic
 pydantic-settings
+PyPDF2

@@ -39,12 +39,27 @@ class Lesson(Base):
     id = Column(Integer, primary_key=True, index=True)
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
     title = Column(String, index=True, nullable=False)
+    type = Column(String, default="lesson") # "lesson", "quiz"
     content = Column(Text) # Could be markdown, HTML, or raw text
     video_url = Column(String, nullable=True)
     order = Column(Integer, default=0)
 
     course = relationship("Course", back_populates="lessons")
     progress = relationship("UserProgress", back_populates="lesson", cascade="all, delete")
+    questions = relationship("Question", back_populates="lesson", cascade="all, delete")
+
+class Question(Base):
+    __tablename__ = "questions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=False)
+    type = Column(String, nullable=False) # e.g. "multiple_choice", "true_false", "drag_drop_sort"
+    question_text = Column(Text, nullable=False)
+    # Storing configurations and answers as JSON string to support various types dynamically
+    config = Column(Text, nullable=False)
+    order = Column(Integer, default=0)
+
+    lesson = relationship("Lesson", back_populates="questions")
 
 class UserProgress(Base):
     __tablename__ = "user_progress"

@@ -7,6 +7,7 @@ from backend.database import engine, Base, get_db
 from backend.models import User, Course, Lesson, UserProgress, ChatMessage
 from backend.auth import authenticate_user, create_access_token, get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user
 from backend.ai_chat import router as ai_router
+from backend.course_generation import router as course_router
 from datetime import timedelta
 import asyncio
 import os
@@ -60,6 +61,7 @@ async def startup_event():
 
 # Include AI Chat routes
 app.include_router(ai_router, prefix="/api", tags=["AI Coach"])
+app.include_router(course_router, prefix="/api", tags=["Course Generation"])
 
 @app.post("/api/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
@@ -107,7 +109,7 @@ async def get_course_details(course_id: int, db: AsyncSession = Depends(get_db))
     from sqlalchemy.orm import selectinload
     result = await db.execute(
         select(Course)
-        .options(selectinload(Course.lessons))
+        .options(selectinload(Course.lessons).selectinload(Lesson.questions))
         .filter(Course.id == course_id)
     )
     course = result.scalars().first()

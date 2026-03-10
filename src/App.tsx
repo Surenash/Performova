@@ -5,6 +5,7 @@ import LandingPage from "./pages/LandingPage"
 import PricingPage from "./pages/PricingPage"
 import FeaturesPage from "./pages/FeaturesPage"
 import AdminDashboard from "./pages/AdminDashboard"
+import AdminCourseGenerator from "./pages/AdminCourseGenerator"
 import LearnerDashboard from "./pages/LearnerDashboard"
 import CourseCatalog from "./pages/CourseCatalog"
 import LessonPlayer from "./pages/LessonPlayer"
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/team" element={<div className="p-6">Team Progress (WIP)</div>} />
           <Route path="/admin/content" element={<div className="p-6">Content Library (WIP)</div>} />
+          <Route path="/admin/generate-course" element={<AdminCourseGenerator />} />
           <Route path="/admin/settings" element={<div className="p-6">Settings (WIP)</div>} />
         </Route>
 
