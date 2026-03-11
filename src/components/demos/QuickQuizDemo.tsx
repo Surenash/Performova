@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -10,48 +10,28 @@ interface Question {
     explanation: string
 }
 
-const questions: Question[] = [
-    {
-        question: "What is the first step in a phishing attack?",
-        options: [
-            "Clicking a suspicious link",
-            "Receiving a deceptive email",
-            "Downloading malware",
-            "Sharing your password",
-        ],
-        correctIndex: 1,
-        explanation: "Phishing starts with the attacker sending a deceptive email designed to look legitimate.",
-    },
-    {
-        question: "Which password is the most secure?",
-        options: [
-            "password123",
-            "MyDog'sName",
-            "Tr0ub4dor&3",
-            "j7$kL9!mNq2@xW",
-        ],
-        correctIndex: 3,
-        explanation: "Long, random passwords with mixed characters are the strongest against brute-force attacks.",
-    },
-    {
-        question: "What does 2FA stand for?",
-        options: [
-            "Two-Factor Authentication",
-            "Two-File Authorization",
-            "Two-Form Access",
-            "Two-Firewall Application",
-        ],
-        correctIndex: 0,
-        explanation: "Two-Factor Authentication adds a second layer of verification beyond just a password.",
-    },
-]
 
 export default function QuickQuizDemo() {
+    const [questions, setQuestions] = useState<Question[]>([])
     const [currentQ, setCurrentQ] = useState(0)
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
     const [showResult, setShowResult] = useState(false)
     const [score, setScore] = useState(0)
     const [finished, setFinished] = useState(false)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        fetch('/api/demos/quick_quiz')
+            .then(res => res.json())
+            .then((data: Question[]) => {
+                setQuestions(data)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error(err)
+                setLoading(false)
+            })
+    }, [])
 
     const question = questions[currentQ]
 
@@ -81,6 +61,12 @@ export default function QuickQuizDemo() {
         setScore(0)
         setFinished(false)
     }
+
+    if (loading) {
+        return <div className="p-8 text-center text-zinc-500">Loading quiz...</div>
+    }
+
+    if (questions.length === 0) return null
 
     return (
         <div className="bg-white rounded-2xl shadow-xl border border-zinc-100 p-6 w-full max-w-sm relative overflow-hidden">

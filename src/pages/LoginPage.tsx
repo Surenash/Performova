@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Award, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Award, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,13 +11,20 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
     try {
       const formData = new URLSearchParams()
-      formData.append('username', email || (isAdmin ? 'admin@performova.com' : 'learner@performova.com'))
-      formData.append('password', password || 'admin')
+      // Let the user strictly provide email/password or use the defaults on empty
+      const loginEmail = email || (isAdmin ? 'admin@performova.com' : 'learner@performova.com');
+      const loginPassword = password || 'admin';
+
+      formData.append('username', loginEmail)
+      formData.append('password', loginPassword)
 
       const res = await fetch('/api/token', {
         method: 'POST',
@@ -36,17 +43,12 @@ const LoginPage = () => {
           navigate('/learner');
         }
       } else {
-        alert("Login failed. Check your credentials.")
+        const errData = await res.json().catch(() => ({}));
+        setError(errData.detail || "Invalid email or password. Please try again.");
       }
     } catch (err) {
       console.error(err)
-      // Fallback for mock environments without backend running
-      localStorage.setItem("access_token", "mock_token")
-      if (isAdmin) {
-        navigate('/admin');
-      } else {
-        navigate('/learner');
-      }
+      setError("Network error connecting to the backend server. Is it running?");
     }
   };
 
@@ -78,6 +80,12 @@ const LoginPage = () => {
 
             <TabsContent value="learner">
               <form onSubmit={handleLogin} className="space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-semibold text-zinc-900 mb-2">Email</label>
                   <div className="relative">
@@ -123,6 +131,12 @@ const LoginPage = () => {
 
             <TabsContent value="admin">
               <form onSubmit={handleLogin} className="space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-semibold text-zinc-900 mb-2">Email</label>
                   <div className="relative">

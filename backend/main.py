@@ -4,10 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_matrix_admin import MatrixAdmin
 from backend.database import engine, Base, get_db
-from backend.models import User, Course, Lesson, UserProgress, ChatMessage
+from backend.models import User, Course, Lesson, UserProgress, ChatMessage, DemoConfig, Question
 from backend.auth import authenticate_user, create_access_token, get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES, get_current_active_user
 from backend.ai_chat import router as ai_router
 from backend.course_generation import router as course_router
+from backend.routers.data_router import router as data_router
 from backend.video_processing import generate_presigned_url
 from datetime import timedelta
 import asyncio
@@ -39,8 +40,14 @@ async def startup_event():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    # 2. Auto-discover Matrix Admin
-    admin.auto_discover(Base)
+    # 2. Register Matrix Admin Models explicitly
+    admin.register(User, icon="users")
+    admin.register(Course, icon="book-open")
+    admin.register(Lesson, icon="file-text")
+    admin.register(Question, icon="help-circle")
+    admin.register(DemoConfig, icon="database")
+    admin.register(UserProgress, icon="trending-up")
+    admin.register(ChatMessage, icon="message-square")
 
     # 3. Create initial superuser for Admin
     async with AsyncSession(engine) as session:
@@ -59,10 +66,16 @@ async def startup_event():
             session.add(new_admin)
             await session.commit()
             print("Initial admin user created: admin@performova.com / admin")
+            
+        # 4. Seed Data
+        from backend.seed_data import seed_database
+        await seed_database(session)
 
 # Include AI Chat routes
+
 app.include_router(ai_router, prefix="/api", tags=["AI Coach"])
 app.include_router(course_router, prefix="/api", tags=["Course Generation"])
+app.include_router(data_router, prefix="/api", tags=["Demo Data"])
 
 @app.post("/api/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
