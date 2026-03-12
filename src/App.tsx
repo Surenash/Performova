@@ -10,6 +10,7 @@ import LearnerDashboard from "./pages/LearnerDashboard"
 import CourseCatalog from "./pages/CourseCatalog"
 import LessonPlayer from "./pages/LessonPlayer"
 import LoginPage from "./pages/LoginPage"
+import DemoPage from "./pages/DemoPage"
 
 export default function App() {
   return (
@@ -42,6 +43,10 @@ export default function App() {
 
         {/* Full Screen Player */}
         <Route path="/lesson/:id" element={<LessonPlayer />} />
+
+        <Route path="/demo" element={<DashboardLayout role="learner" />}>
+          <Route index element={<DemoPage />} />
+        </Route>
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

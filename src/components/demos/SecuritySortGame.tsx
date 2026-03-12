@@ -1,32 +1,47 @@
-import { useState } from "react"
-import { motion, AnimatePresence, Reorder } from "framer-motion"
-import { ShieldCheck, ShieldAlert, GripVertical, CheckCircle2, XCircle, RotateCcw } from "lucide-react"
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { ShieldCheck, ShieldAlert, GripVertical, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn, shuffleArray } from "@/lib/utils"
+import { api } from "@/lib/api"
 
-const ITEMS = [
-    { id: "1", text: "Using 'Password123' for all accounts", category: "risk", hint: "Reuse and weak patterns are easy to crack." },
-    { id: "2", text: "Enabling Multi-Factor Authentication (MFA)", category: "safe", hint: "Adds a critical layer of defense." },
-    { id: "3", text: "Leaving your laptop unlocked in a cafe", category: "risk", hint: "Physical access is a major vulnerability." },
-    { id: "4", text: "Updating software as soon as patches arrive", category: "safe", hint: "Patches fix known security holes." },
-    { id: "5", text: "Clicking 'Unsubscribe' in a spam email", category: "risk", hint: "Often confirms your email is active to spammers." },
-    { id: "6", text: "Using a unique passphrase for each service", category: "safe", hint: "Isolation prevents credential stuffing." },
-]
+interface SecurityItem {
+    id: string;
+    text: string;
+    category: string;
+    hint: string;
+}
 
 export default function SecuritySortGame() {
-    const [items, setItems] = useState(shuffleArray(ITEMS))
-    const [safeList, setSafeList] = useState<typeof ITEMS>([])
-    const [riskList, setRiskList] = useState<typeof ITEMS>([])
+    const [items, setItems] = useState<SecurityItem[]>([])
+    const [safeList, setSafeList] = useState<SecurityItem[]>([])
+    const [riskList, setRiskList] = useState<SecurityItem[]>([])
     const [showResults, setShowResults] = useState(false)
+    const [originalItems, setOriginalItems] = useState<SecurityItem[]>([])
+    const [loading, setLoading] = useState(true)
 
-    const handleSort = (item: typeof ITEMS[0], target: 'safe' | 'risk') => {
+    useEffect(() => {
+        api.get('/api/demos/security_sort')
+            .then(res => {
+                const data = res.data
+                setOriginalItems(data)
+                setItems(shuffleArray([...data]))
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error(err)
+                setLoading(false)
+            })
+    }, [])
+
+    const handleSort = (item: SecurityItem, target: 'safe' | 'risk') => {
         setItems(prev => prev.filter(i => i.id !== item.id))
         if (target === 'safe') setSafeList(prev => [...prev, item])
         if (target === 'risk') setRiskList(prev => [...prev, item])
     }
 
     const handleReset = () => {
-        setItems(shuffleArray(ITEMS))
+        setItems(shuffleArray([...originalItems]))
         setSafeList([])
         setRiskList([])
         setShowResults(false)
@@ -39,7 +54,10 @@ export default function SecuritySortGame() {
     }
 
     const score = calculateScore()
-    const finished = items.length === 0
+
+    if (loading) {
+        return <div className="p-8 text-center text-zinc-500">Loading security game...</div>
+    }
 
     return (
         <div className="w-full max-w-4xl bg-zinc-50 rounded-3xl border border-zinc-200 p-8 shadow-sm">
@@ -106,7 +124,7 @@ export default function SecuritySortGame() {
                                 animate={{ opacity: 1, y: 0 }}
                                 className="text-center py-12"
                             >
-                                <div className="text-4xl font-black text-zinc-900 mb-2">{score}/{ITEMS.length}</div>
+                                <div className="text-4xl font-black text-zinc-900 mb-2">{score}/{originalItems.length}</div>
                                 <p className="text-zinc-500 mb-6">Great session! You've sorted all behaviors.</p>
                                 {!showResults ? (
                                     <Button onClick={() => setShowResults(true)} className="bg-zinc-900 text-white w-full">See Explanations</Button>

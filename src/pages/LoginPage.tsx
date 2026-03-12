@@ -1,23 +1,33 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Award, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Award, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { api } from '@/lib/api';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('learner@example.com');
+  const [password, setPassword] = useState('password');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+
     try {
       const formData = new URLSearchParams()
-      formData.append('username', email || (isAdmin ? 'admin@performova.com' : 'learner@performova.com'))
-      formData.append('password', password || 'admin')
+      // Let the user strictly provide email/password or use the defaults on empty
+      const loginEmail = email || (isAdmin ? 'admin@performova.com' : 'learner@performova.com');
+      const loginPassword = password || 'admin';
+
+      formData.append('username', loginEmail)
+      formData.append('password', loginPassword)
 
       const res = await fetch('/api/token', {
         method: 'POST',
@@ -36,17 +46,14 @@ const LoginPage = () => {
           navigate('/learner');
         }
       } else {
-        alert("Login failed. Check your credentials.")
+        const errData = await res.json().catch(() => ({}));
+        setError(errData.detail || "Invalid email or password. Please try again.");
       }
     } catch (err) {
       console.error(err)
-      // Fallback for mock environments without backend running
-      localStorage.setItem("access_token", "mock_token")
-      if (isAdmin) {
-        navigate('/admin');
-      } else {
-        navigate('/learner');
-      }
+      setError("Network error connecting to the backend server. Is it running?");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,8 +83,21 @@ const LoginPage = () => {
               <TabsTrigger value="admin" data-testid="admin-tab">Admin</TabsTrigger>
             </TabsList>
 
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-xl flex items-center gap-2 text-sm border border-red-200">
+                <AlertCircle className="w-4 h-4" />
+                {error}
+              </div>
+            )}
+
             <TabsContent value="learner">
               <form onSubmit={handleLogin} className="space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-semibold text-zinc-900 mb-2">Email</label>
                   <div className="relative">
@@ -112,10 +132,11 @@ const LoginPage = () => {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 rounded-full bg-indigo-600 text-white font-bold text-lg shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                  disabled={loading}
+                  className="w-full h-12 rounded-full bg-indigo-600 text-white font-bold text-lg shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   data-testid="login-button"
                 >
-                  Sign In as Learner
+                  {loading ? 'Signing in...' : 'Sign In as Learner'}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </form>
@@ -123,6 +144,12 @@ const LoginPage = () => {
 
             <TabsContent value="admin">
               <form onSubmit={handleLogin} className="space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-semibold text-zinc-900 mb-2">Email</label>
                   <div className="relative">
@@ -157,10 +184,11 @@ const LoginPage = () => {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 rounded-full bg-indigo-600 text-white font-bold text-lg shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                  disabled={loading}
+                  className="w-full h-12 rounded-full bg-indigo-600 text-white font-bold text-lg shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   data-testid="admin-login-button"
                 >
-                  Sign In as Admin
+                  {loading ? 'Signing in...' : 'Sign In as Admin'}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </form>

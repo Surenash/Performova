@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge"
 import { CheckCircle2, XCircle, ChevronLeft, Menu, PlayCircle, FileText, MousePointer2, Gamepad2, Video, BookOpen, Flame, Trophy, Play, AlertTriangle, Lock, ShieldCheck, MessageSquare, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-
 // Import Learning Tools
 import VideoPlayer from "@/components/demos/VideoPlayer"
 import ContentReader from "@/components/demos/ContentReader"
@@ -104,6 +103,28 @@ export default function LessonPlayer() {
   }
 
   const renderContent = () => {
+    if (isLoading) return (
+       <div className="flex-1 flex items-center justify-center h-full text-center">
+         <div className="flex flex-col items-center gap-4">
+           <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
+           <p className="text-zinc-500 font-medium">Loading course content...</p>
+         </div>
+       </div>
+    )
+
+    if (!currentStep || Object.keys(currentStep).length === 0) return (
+      <div className="flex-1 flex flex-col items-center justify-center h-full text-center">
+         <div className="w-16 h-16 bg-zinc-100 rounded-2xl flex items-center justify-center mb-6">
+           <AlertTriangle className="w-8 h-8 text-zinc-400" />
+         </div>
+         <p className="text-zinc-900 font-bold text-xl mb-2">Lesson Not Found</p>
+         <p className="text-zinc-500 mb-8 max-w-sm">We couldn't find the content for this lesson. It might have been moved or deleted.</p>
+         <Button onClick={() => navigate('/learner')} variant="outline" className="rounded-xl">
+           Return to Dashboard
+         </Button>
+      </div>
+    )
+
     // Handle dynamic backend courses
     if (courseData) {
       if (currentStep.type === 'lesson') {
@@ -214,96 +235,8 @@ export default function LessonPlayer() {
             <VideoPlayer />
           </div>
         )
-      case 'reading':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8">
-              <Badge variant="outline" className="mb-4 text-teal-600 border-teal-200 bg-teal-50 flex w-fit items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5" /> Reading Material
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Deep-dive into the technical protocols and reporting procedures.</p>
-            </div>
-            <ContentReader />
-          </div>
-        )
-      case 'phishing':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-red-600 border-red-200 bg-red-50 mx-auto flex w-fit items-center gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5" /> Interactive Sandbox
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Can you spot the red flags in this suspicious email?</p>
-            </div>
-            <div className="flex justify-center">
-              <PhishingSimulator />
-            </div>
-          </div>
-        )
-      case 'password':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-indigo-600 border-indigo-200 bg-indigo-50 mx-auto flex w-fit items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5" /> Security Challenge
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Think your password is strong? Let's put it to the test.</p>
-            </div>
-            <div className="flex justify-center">
-              <PasswordChallenge />
-            </div>
-          </div>
-        )
-      case 'sort':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-emerald-600 border-emerald-200 bg-emerald-50 mx-auto flex w-fit items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5" /> Interactive Sorting
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Review your daily habits and decide if they are safe or a security risk.</p>
-            </div>
-            <div className="flex justify-center">
-              <SecuritySortGame />
-            </div>
-          </div>
-        )
-      case 'chat':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-indigo-600 border-indigo-200 bg-indigo-50 mx-auto flex w-fit items-center gap-1.5">
-                <MessageSquare className="w-3.5 h-3.5" /> Social Engineering Sim
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">An attacker is trying to trick you. Choose your responses wisely.</p>
-            </div>
-            <div className="flex justify-center">
-              <ChatSimulator />
-            </div>
-          </div>
-        )
-      case 'quiz':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-emerald-600 border-emerald-200 bg-emerald-50 mx-auto flex w-fit items-center gap-1.5">
-                <Trophy className="w-3.5 h-3.5" /> Final Knowledge Check
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Test your understanding of the entire module.</p>
-            </div>
-            <div className="flex justify-center">
-              <QuickQuizDemo />
-            </div>
-          </div>
-        )
       default:
-        return null
+        return null;
     }
   }
 
@@ -331,7 +264,7 @@ export default function LessonPlayer() {
                 <span className="text-xs font-medium text-zinc-500">{progress}%</span>
               </div>
               <div className="space-y-1">
-                {SYLLABUS.map((item, index) => {
+                {SYLLABUS.map((item: any, index: number) => {
                   const isActive = currentStepIndex === index
                   const isDone = completedSteps.includes(item.id)
                   return (
@@ -358,7 +291,7 @@ export default function LessonPlayer() {
                       <div className="flex-1 min-w-0">
                         <p className={cn("text-sm font-bold truncate", isActive ? "text-indigo-700" : "text-zinc-700")}>{item.title}</p>
                         <div className="flex items-center gap-2 mt-1 text-[10px] uppercase font-bold tracking-wider opacity-60">
-                          {item.type} &bull; {item.duration}
+                          Lesson {index + 1}
                         </div>
                       </div>
                     </button>
@@ -385,20 +318,23 @@ export default function LessonPlayer() {
             <h1 className="font-bold text-zinc-900">{courseData?.title || "Module 3: Social Engineering"}</h1>
           </div>
           <div className="flex items-center gap-3 text-sm font-medium text-zinc-500">
-            Step {currentStepIndex + 1} of {SYLLABUS.length}
+            Step {SYLLABUS.length > 0 ? currentStepIndex + 1 : 0} of {SYLLABUS.length}
           </div>
         </header>
 
         <div className="flex-1 overflow-y-auto p-6 md:p-12">
-          <motion.div
-            key={currentStep.id}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-            className="max-w-4xl mx-auto mb-20"
-          >
-            {renderContent()}
-          </motion.div>
+          {currentStep && (
+            <motion.div
+              key={currentStep.id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+              className="max-w-4xl mx-auto mb-20"
+            >
+              {renderContent()}
+            </motion.div>
+          )}
+          {!currentStep && renderContent()}
         </div>
 
         {/* Sticky Action Bar */}

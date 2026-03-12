@@ -1,35 +1,35 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ShieldAlert, AlertCircle, CheckCircle2, Info, Mail, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
-const RED_FLAGS = [
-    {
-        id: "sender",
-        label: "Suspicious Sender",
-        description: "The email address comes from 'it-support.performova.net' instead of our official 'performova.com' domain.",
-        position: "top-[-10px] left-[60px]"
-    },
-    {
-        id: "urgency",
-        label: "False Urgency",
-        description: "Phrases like 'Action Required Immediately' or 'Within 24 Hours' are common pressure tactics used in phishing.",
-        position: "top-[120px] left-[20px]"
-    },
-    {
-        id: "link",
-        label: "Mismatched Link",
-        description: "Hovering shows 'secure-login-portal.co' which doesn't match our official company tools.",
-        position: "bottom-[80px] left-[150px]"
-    }
-]
+interface RedFlag {
+    id: string
+    label: string
+    description: string
+    position: string
+}
 
 export default function PhishingSimulator() {
+    const [redFlags, setRedFlags] = useState<RedFlag[]>([])
+    const [loading, setLoading] = useState(true)
     const [foundFlags, setFoundFlags] = useState<string[]>([])
     const [showResults, setShowResults] = useState(false)
-    const [hoveredFlag, setHoveredFlag] = useState<string | null>(null)
+
+    useEffect(() => {
+        api.get('/api/demos/phishing_simulator')
+            .then(res => {
+                setRedFlags(res.data)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error("Failed to load phishing simulator data:", err)
+                setLoading(false)
+            })
+    }, [])
 
     const toggleFlag = (id: string) => {
         if (showResults) return
@@ -38,7 +38,11 @@ export default function PhishingSimulator() {
         )
     }
 
-    const allFound = foundFlags.length === RED_FLAGS.length
+    const allFound = foundFlags.length === redFlags.length
+
+    if (loading || redFlags.length === 0) {
+        return <div className="p-8 text-center text-zinc-500 bg-white rounded-3xl border border-zinc-200">Loading simulator...</div>
+    }
 
     return (
         <div className="w-full max-w-3xl bg-white rounded-3xl border border-zinc-200 shadow-xl overflow-hidden">
@@ -51,7 +55,7 @@ export default function PhishingSimulator() {
                     <p className="font-bold text-sm tracking-tight">Security Sandbox: Email Inspector</p>
                 </div>
                 <Badge variant="outline" className="text-zinc-400 border-zinc-700">
-                    {foundFlags.length} / {RED_FLAGS.length} Red Flags Found
+                    {foundFlags.length} / {redFlags.length} Red Flags Found
                 </Badge>
             </div>
 
@@ -129,7 +133,7 @@ export default function PhishingSimulator() {
                                             <AlertCircle className="w-8 h-8 text-amber-600" />
                                         </div>
                                         <h3 className="text-2xl font-bold text-zinc-900 mb-2">Almost There</h3>
-                                        <p className="text-zinc-600 mb-8">You found {foundFlags.length} of {RED_FLAGS.length} red flags. Review the highlighted areas below to see what you missed.</p>
+                                        <p className="text-zinc-600 mb-8">You found {foundFlags.length} of {redFlags.length} red flags. Review the highlighted areas below to see what you missed.</p>
                                     </>
                                 )}
                                 <Button onClick={() => setShowResults(false)} className="bg-indigo-600 text-white">Review Red Flags</Button>
@@ -144,7 +148,7 @@ export default function PhishingSimulator() {
                         <Info className="w-4 h-4 text-indigo-500" /> Identified Red Flags
                     </h4>
                     <div className="grid gap-3">
-                        {RED_FLAGS.map(flag => (
+                        {redFlags.map(flag => (
                             <div key={flag.id} className={cn(
                                 "p-4 rounded-xl border transition-all flex items-start gap-4",
                                 foundFlags.includes(flag.id)

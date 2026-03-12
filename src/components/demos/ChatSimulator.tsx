@@ -4,6 +4,7 @@ import { User, Shield, MessageSquare, Send, AlertTriangle, CheckCircle2, XCircle
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 type Message = {
     id: string
@@ -22,64 +23,10 @@ type ScenarioStage = {
     }[]
 }
 
-const SCENARIO: Record<string, ScenarioStage> = {
-    start: {
-        attackerMessage: "Hi! This is Sarah from HR. We're having some trouble with the payroll system for your department. Could you help me verify your employee ID and just the last 4 digits of your SSN? I want to make sure you get paid on time!",
-        options: [
-            {
-                text: "Sure, my ID is EMP442 and last 4 are 8821.",
-                isSecure: false,
-                feedback: "Never share sensitive identifiers over unsolicited chat, even if they mention payroll!"
-            },
-            {
-                text: "Hi Sarah, can you tell me your official employee extension so I can call you back via the internal directory?",
-                isSecure: true,
-                feedback: "Great move! Verifying the identity through official channels is a top security practice.",
-                nextStageId: "verify"
-            },
-            {
-                text: "I'm not comfortable sharing that here. I'll drop by the HR office later today to check.",
-                isSecure: true,
-                feedback: "Excellent! Choosing a secure, physical location for sensitive matters is very safe.",
-                nextStageId: "office"
-            }
-        ]
-    },
-    verify: {
-        attackerMessage: "Oh, I'm actually working remotely today and my extension is being forwarded. It's really urgent though, the payroll batch closes in 10 minutes!",
-        options: [
-            {
-                text: "Okay, since it's urgent: 8821.",
-                isSecure: false,
-                feedback: "Urgency is a classic social engineering trick. Don't let pressure bypass your security protocols."
-            },
-            {
-                text: "I understand, but company policy requires me to verify these details through our secure portal. I'll check it there.",
-                isSecure: true,
-                feedback: "Perfect. Relying on established secure portals instead of chat is exactly what you should do.",
-                nextStageId: "success"
-            }
-        ]
-    },
-    office: {
-        attackerMessage: "Actually, there's a big meeting in HR all afternoon. If you don't do it now, your paycheck might be delayed until next week! Are you sure?",
-        options: [
-            {
-                text: "Fine, I don't want to miss my pay. It's 8821.",
-                isSecure: false,
-                feedback: "The attacker used a 'paycheck delay' threat to scare you. Stay firm!"
-            },
-            {
-                text: "Yes, I'm sure. I'll wait to speak with my manager first.",
-                isSecure: true,
-                feedback: "Solid choice. Involving management adds an extra layer of verification.",
-                nextStageId: "success"
-            }
-        ]
-    }
-}
 
 export default function ChatSimulator() {
+    const [scenario, setScenario] = useState<Record<string, ScenarioStage> | null>(null)
+    const [loading, setLoading] = useState(true)
     const [messages, setMessages] = useState<Message[]>([])
     const [currentStageId, setCurrentStageId] = useState<string | null>("start")
     const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing')
@@ -88,10 +35,25 @@ export default function ChatSimulator() {
     const chatEndRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
+        api.get('/api/demos/chat_scenario')
+            .then(res => {
+                setScenario(res.data)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error(err)
+                setLoading(false)
+            })
+    }, [])
+
+    useEffect(() => {
+        if (loading || !scenario) return;
+
         if (currentStageId && gameState === 'playing') {
             setIsAttackerTyping(true)
             const timer = setTimeout(() => {
-                const stage = SCENARIO[currentStageId]
+                const stage = scenario[currentStageId]
+                if (!stage) return;
                 const newMessage: Message = {
                     id: Date.now().toString(),
                     sender: 'attacker',
@@ -103,13 +65,13 @@ export default function ChatSimulator() {
             }, 1500)
             return () => clearTimeout(timer)
         }
-    }, [currentStageId, gameState])
+    }, [currentStageId, gameState, loading, scenario])
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, [messages, isAttackerTyping])
 
-    const handleOptionSelect = (option: typeof SCENARIO['start']['options'][0]) => {
+    const handleOptionSelect = (option: ScenarioStage['options'][0]) => {
         const userMessage: Message = {
             id: (Date.now() + 1).toString(),
             sender: 'user',
@@ -133,6 +95,10 @@ export default function ChatSimulator() {
         setCurrentStageId("start")
         setGameState('playing')
         setLastFeedback(null)
+    }
+
+    if (loading) {
+        return <div className="p-8 text-center text-zinc-500">Loading chat simulation...</div>
     }
 
     return (
@@ -199,8 +165,8 @@ export default function ChatSimulator() {
                         <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
                             <MessageSquare className="w-3 h-3" /> Select your response
                         </p>
-                        <div className="flex flex-col gap-2">
-                            {!isAttackerTyping && currentStageId && SCENARIO[currentStageId].options.map((opt, i) => (
+                        <div className="flex flex-col gap-2 animate-in slide-in-from-bottom-2 fade-in duration-500">
+                            {!isAttackerTyping && currentStageId && scenario && scenario[currentStageId] && scenario[currentStageId].options.map((opt, i) => (
                                 <button
                                     key={i}
                                     onClick={() => handleOptionSelect(opt)}

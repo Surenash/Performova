@@ -1,29 +1,46 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { CheckCircle2, XCircle, RotateCcw, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 interface MatchPair {
     protocol: string
     port: string
 }
 
-const pairs: MatchPair[] = [
-    { protocol: "HTTPS", port: "Port 443" },
-    { protocol: "SSH", port: "Port 22" },
-    { protocol: "FTP", port: "Port 21" },
-]
-
-// Shuffled ports for display
-const shuffledPorts = ["Port 22", "Port 443", "Port 21"]
+// Data fetched from API
 
 export default function ProtocolMatchGame() {
     const [selectedProtocol, setSelectedProtocol] = useState<string | null>(null)
     const [matches, setMatches] = useState<Record<string, string>>({})
     const [wrongPair, setWrongPair] = useState<{ protocol: string; port: string } | null>(null)
     const [shakeProtocol, setShakeProtocol] = useState<string | null>(null)
+    const [pairs, setPairs] = useState<MatchPair[]>([])
+    const [shuffledPorts, setShuffledPorts] = useState<string[]>([])
+    const [loading, setLoading] = useState(true)
 
-    const isCompleted = Object.keys(matches).length === pairs.length
+    useEffect(() => {
+        api.get('/api/demos/protocol_match')
+            .then(res => {
+                const data = res.data
+                setPairs(data)
+                // Shuffle ports uniquely
+                const ports = data.map((p: MatchPair) => p.port)
+                for (let i = ports.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [ports[i], ports[j]] = [ports[j], ports[i]];
+                }
+                setShuffledPorts(ports)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error(err)
+                setLoading(false)
+            })
+    }, [])
+
+    const isCompleted = pairs.length > 0 && Object.keys(matches).length === pairs.length
     const correctMap: Record<string, string> = {}
     pairs.forEach((p) => (correctMap[p.protocol] = p.port))
 
@@ -59,6 +76,10 @@ export default function ProtocolMatchGame() {
         setSelectedProtocol(null)
         setWrongPair(null)
         setShakeProtocol(null)
+    }
+
+    if (loading) {
+        return <div className="p-8 text-center text-zinc-500">Loading protocol game...</div>
     }
 
     return (

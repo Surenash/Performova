@@ -1,7 +1,8 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 interface Flashcard {
     front: string
@@ -9,33 +10,25 @@ interface Flashcard {
     category: string
 }
 
-const cards: Flashcard[] = [
-    {
-        front: "What is a firewall?",
-        back: "A network security device that monitors and filters incoming and outgoing network traffic based on an organization's security policies.",
-        category: "Network Security",
-    },
-    {
-        front: "What is encryption?",
-        back: "The process of converting information into a secret code that hides the information's true meaning. Only authorized parties can decipher it.",
-        category: "Data Protection",
-    },
-    {
-        front: "What is social engineering?",
-        back: "The psychological manipulation of people into performing actions or divulging confidential information, rather than using technical hacking.",
-        category: "Threat Awareness",
-    },
-    {
-        front: "What is a VPN?",
-        back: "A Virtual Private Network creates an encrypted connection over the internet between a device and a network, protecting data in transit.",
-        category: "Network Security",
-    },
-]
 
 export default function FlashcardDemo() {
+    const [cards, setCards] = useState<Flashcard[]>([])
     const [currentIndex, setCurrentIndex] = useState(0)
     const [isFlipped, setIsFlipped] = useState(false)
     const [direction, setDirection] = useState(0) // -1 for left, 1 for right
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        api.get('/api/demos/flashcards')
+            .then(res => {
+                setCards(res.data)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error(err)
+                setLoading(false)
+            })
+    }, [])
 
     const card = cards[currentIndex]
 
@@ -65,8 +58,15 @@ export default function FlashcardDemo() {
         setDirection(0)
     }
 
+    if (loading) {
+        return <div className="p-8 text-center text-zinc-500">Loading flashcards...</div>
+    }
+
+    if (cards.length === 0) return null
+
     return (
-        <div className="w-full max-w-sm mx-auto">
+
+        <div className="w-full max-sm mx-auto">
             {/* Card container */}
             <div
                 className="relative w-full h-56 cursor-pointer mb-4"
