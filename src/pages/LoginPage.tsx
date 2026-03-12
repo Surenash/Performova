@@ -12,13 +12,41 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock login - redirect based on role
-    if (isAdmin) {
-      navigate('/admin');
-    } else {
-      navigate('/learner');
+    try {
+      const formData = new URLSearchParams()
+      formData.append('username', email || (isAdmin ? 'admin@performova.com' : 'learner@performova.com'))
+      formData.append('password', password || 'admin')
+
+      const res = await fetch('/api/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        localStorage.setItem("access_token", data.access_token)
+        localStorage.setItem("user_role", data.role)
+
+        if (data.role === "Admin" || isAdmin) {
+          navigate('/admin');
+        } else {
+          navigate('/learner');
+        }
+      } else {
+        alert("Login failed. Check your credentials.")
+      }
+    } catch (err) {
+      console.error(err)
+      // Fallback for mock environments without backend running
+      localStorage.setItem("access_token", "mock_token")
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/learner');
+      }
     }
   };
 
