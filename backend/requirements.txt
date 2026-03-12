@@ -5,9 +5,17 @@ aiosqlite
 fastapi-matrix-admin
 python-jose[cryptography]
 passlib[bcrypt]
+bcrypt==4.0.1
 python-multipart
 google-genai
 alembic
 pydantic
 pydantic-settings
+<<<<<<< HEAD
 bcrypt==4.0.1
+=======
+PyPDF2
+boto3
+faster-whisper
+ffmpeg-python
+>>>>>>> feature/full-db-migration-and-auth

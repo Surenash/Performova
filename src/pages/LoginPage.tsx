@@ -13,11 +13,15 @@ const LoginPage = () => {
   const [password, setPassword] = useState('password');
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState('');
+<<<<<<< HEAD
   const [loading, setLoading] = useState(false);
+=======
+>>>>>>> feature/full-db-migration-and-auth
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+<<<<<<< HEAD
     setLoading(true);
 
     try {
@@ -44,6 +48,41 @@ const LoginPage = () => {
       setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
+=======
+
+    try {
+      const formData = new URLSearchParams()
+      // Let the user strictly provide email/password or use the defaults on empty
+      const loginEmail = email || (isAdmin ? 'admin@performova.com' : 'learner@performova.com');
+      const loginPassword = password || 'admin';
+
+      formData.append('username', loginEmail)
+      formData.append('password', loginPassword)
+
+      const res = await fetch('/api/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        localStorage.setItem("access_token", data.access_token)
+        localStorage.setItem("user_role", data.role)
+
+        if (data.role === "Admin" || isAdmin) {
+          navigate('/admin');
+        } else {
+          navigate('/learner');
+        }
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setError(errData.detail || "Invalid email or password. Please try again.");
+      }
+    } catch (err) {
+      console.error(err)
+      setError("Network error connecting to the backend server. Is it running?");
+>>>>>>> feature/full-db-migration-and-auth
     }
   };
 
@@ -82,6 +121,12 @@ const LoginPage = () => {
 
             <TabsContent value="learner">
               <form onSubmit={handleLogin} className="space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-semibold text-zinc-900 mb-2">Email</label>
                   <div className="relative">
@@ -128,6 +173,12 @@ const LoginPage = () => {
 
             <TabsContent value="admin">
               <form onSubmit={handleLogin} className="space-y-4">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-start gap-2">
+                    <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <span>{error}</span>
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-semibold text-zinc-900 mb-2">Email</label>
                   <div className="relative">

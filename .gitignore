@@ -5,6 +5,7 @@ coverage/
 .DS_Store
 *.log
 .env*
+lms.db
 !.env.example
 .venv
 venv/

@@ -29,9 +29,25 @@ class Course(Base):
     description = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
     is_published = Column(Boolean, default=False)
+    
+    # New fields for frontend catalog
+    category = Column(String, nullable=True)
+    time = Column(String, nullable=True)
+    format = Column(String, nullable=True)
+    difficulty = Column(String, nullable=True)
+    image = Column(String, nullable=True)
+    color = Column(String, nullable=True)
 
     lessons = relationship("Lesson", back_populates="course", cascade="all, delete")
     progress = relationship("UserProgress", back_populates="course", cascade="all, delete")
+
+class DemoConfig(Base):
+    """Generic table for all interactive demos to store varying structured data."""
+    __tablename__ = "demo_configs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    demo_type = Column(String, unique=True, index=True, nullable=False) # e.g., 'flashcards', 'quiz', 'security_sort'
+    config_json = Column(Text, nullable=False) # Stores the actual JSON array/object
 
 class Lesson(Base):
     __tablename__ = "lessons"
@@ -39,12 +55,27 @@ class Lesson(Base):
     id = Column(Integer, primary_key=True, index=True)
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
     title = Column(String, index=True, nullable=False)
+    type = Column(String, default="lesson") # "lesson", "quiz"
     content = Column(Text) # Could be markdown, HTML, or raw text
     video_url = Column(String, nullable=True)
     order = Column(Integer, default=0)
 
     course = relationship("Course", back_populates="lessons")
     progress = relationship("UserProgress", back_populates="lesson", cascade="all, delete")
+    questions = relationship("Question", back_populates="lesson", cascade="all, delete")
+
+class Question(Base):
+    __tablename__ = "questions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=False)
+    type = Column(String, nullable=False) # e.g. "multiple_choice", "true_false", "drag_drop_sort"
+    question_text = Column(Text, nullable=False)
+    # Storing configurations and answers as JSON string to support various types dynamically
+    config = Column(Text, nullable=False)
+    order = Column(Integer, default=0)
+
+    lesson = relationship("Lesson", back_populates="questions")
 
 class UserProgress(Base):
     __tablename__ = "user_progress"

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -7,22 +7,33 @@ import { Search, Filter, Clock, PlayCircle, BookOpen, MousePointer2 } from "luci
 
 const CATEGORIES = ["All", "Compliance", "Security", "Leadership", "Technical", "Onboarding"]
 
-const COURSES = [
-  { id: 1, title: "Data Privacy 101", category: "Compliance", time: "15 min", format: "interactive", difficulty: "Beginner", image: "https://picsum.photos/seed/privacy/400/200", color: "bg-blue-100" },
-  { id: 2, title: "Effective Feedback", category: "Leadership", time: "30 min", format: "video", difficulty: "Intermediate", image: "https://picsum.photos/seed/feedback/400/200", color: "bg-purple-100" },
-  { id: 3, title: "Phishing Defense", category: "Security", time: "10 min", format: "interactive", difficulty: "Beginner", image: "https://picsum.photos/seed/phishing/400/200", color: "bg-red-100" },
-  { id: 4, title: "React Advanced", category: "Technical", time: "2 hrs", format: "text", difficulty: "Advanced", image: "https://picsum.photos/seed/react/400/200", color: "bg-cyan-100" },
-  { id: 5, title: "Company Culture", category: "Onboarding", time: "20 min", format: "video", difficulty: "Beginner", image: "https://picsum.photos/seed/culture/400/200", color: "bg-orange-100" },
-  { id: 6, title: "Secure Coding", category: "Security", time: "45 min", format: "interactive", difficulty: "Intermediate", image: "https://picsum.photos/seed/secure/400/200", color: "bg-emerald-100" },
-]
-
 export default function CourseCatalog() {
   const navigate = useNavigate()
   const [activeCategory, setActiveCategory] = useState("All")
+  const [courses, setCourses] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filteredCourses = activeCategory === "All" 
-    ? COURSES 
-    : COURSES.filter(c => c.category === activeCategory)
+  useEffect(() => {
+    fetch('/api/courses')
+      .then(res => res.json())
+      .then(data => {
+        setCourses(data)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error("Failed to fetch courses:", err)
+        setLoading(false)
+      })
+  }, [])
+
+  const filteredCourses = activeCategory === "All"
+    ? courses
+    : courses.filter(c => c.category === activeCategory)
+
+  if (loading) {
+    return <div className="p-8 text-center text-zinc-500">Loading courses...</div>
+  }
+
 
   return (
     <div className="flex flex-col md:flex-row gap-8">
@@ -89,11 +100,10 @@ export default function CourseCatalog() {
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeCategory === category 
-                  ? "bg-zinc-900 text-white" 
+              className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeCategory === category
+                  ? "bg-zinc-900 text-white"
                   : "bg-white border border-zinc-200 text-zinc-600 hover:bg-zinc-50"
-              }`}
+                }`}
             >
               {category}
             </button>
@@ -125,11 +135,10 @@ export default function CourseCatalog() {
                 </div>
                 <h3 className="font-bold text-zinc-900 mb-1 group-hover:text-indigo-600 transition-colors">{course.title}</h3>
                 <div className="mt-auto pt-4 flex items-center justify-between">
-                  <span className={`text-xs font-medium px-2 py-1 rounded-md ${
-                    course.difficulty === 'Beginner' ? 'bg-emerald-100 text-emerald-700' :
-                    course.difficulty === 'Intermediate' ? 'bg-amber-100 text-amber-700' :
-                    'bg-red-100 text-red-700'
-                  }`}>
+                  <span className={`text-xs font-medium px-2 py-1 rounded-md ${course.difficulty === 'Beginner' ? 'bg-emerald-100 text-emerald-700' :
+                      course.difficulty === 'Intermediate' ? 'bg-amber-100 text-amber-700' :
+                        'bg-red-100 text-red-700'
+                    }`}>
                     {course.difficulty}
                   </span>
                   <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-full bg-zinc-100 group-hover:bg-indigo-600 group-hover:text-white transition-colors">

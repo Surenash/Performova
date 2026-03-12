@@ -1,68 +1,91 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Users, Clock, Award, Plus, Search, Filter, MoreHorizontal, BookOpen, TrendingUp } from "lucide-react"
+import { Users, Clock, Award, Plus, Search, Filter, MoreHorizontal, BookOpen, TrendingUp, Database } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-const TEAM_DATA = [
-  { id: 1, name: "Alice Johnson", role: "Frontend Dev", progress: 85, status: "On Track", avatar: "https://i.pravatar.cc/150?u=1", coursesCompleted: 4 },
-  { id: 2, name: "Bob Smith", role: "Backend Dev", progress: 40, status: "Overdue", avatar: "https://i.pravatar.cc/150?u=2", coursesCompleted: 2 },
-  { id: 3, name: "Charlie Davis", role: "Designer", progress: 100, status: "Completed", avatar: "https://i.pravatar.cc/150?u=3", coursesCompleted: 6 },
-  { id: 4, name: "Diana Prince", role: "Product Manager", progress: 60, status: "On Track", avatar: "https://i.pravatar.cc/150?u=4", coursesCompleted: 3 },
-  { id: 5, name: "Evan Wright", role: "QA Engineer", progress: 15, status: "At Risk", avatar: "https://i.pravatar.cc/150?u=5", coursesCompleted: 1 },
-]
 
 export default function AdminDashboard() {
   const [isAssignOpen, setIsAssignOpen] = useState(false)
+  const [dashboardData, setDashboardData] = useState<{ team: any[], activities: any[] }>({ team: [], activities: [] })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/dashboard/admin')
+      .then(res => res.json())
+      .then(data => {
+        setDashboardData(data)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error("Failed to fetch dashboard data:", err)
+        setLoading(false)
+      })
+  }, [])
+
+  const TEAM_DATA = dashboardData.team
+  const RECENT_ACTIVITIES = dashboardData.activities
+
+  if (loading) {
+    return <div className="p-8 text-center text-zinc-500">Loading admin dashboard...</div>
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Team Overview</h1>
-          <p className="text-sm text-zinc-500">Monitor learning progress and assign new courses.</p>
+          <p className="text-sm text-zinc-500">Monitor learning progress and manage the system database.</p>
         </div>
-        <Dialog open={isAssignOpen} onOpenChange={setIsAssignOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-              <Plus className="w-4 h-4 mr-2" /> Assign Course
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Assign Learning Path</DialogTitle>
-            </DialogHeader>
-            <div className="py-4 space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-900">Select Course</label>
-                <div className="p-3 border border-zinc-200 rounded-lg bg-zinc-50 flex items-center justify-between cursor-pointer hover:border-indigo-500">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-indigo-100 flex items-center justify-center">
-                      <BookOpen className="w-4 h-4 text-indigo-600" />
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            className="border-zinc-200 text-zinc-700 hover:bg-zinc-50"
+            onClick={() => window.open('http://localhost:8000/admin', '_blank', 'noopener,noreferrer')}
+          >
+            <Database className="w-4 h-4 mr-2 text-indigo-500" /> Manage Database
+          </Button>
+          <Dialog open={isAssignOpen} onOpenChange={setIsAssignOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
+                <Plus className="w-4 h-4 mr-2" /> Assign Course
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Assign Learning Path</DialogTitle>
+              </DialogHeader>
+              <div className="py-4 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-900">Select Course</label>
+                  <div className="p-3 border border-zinc-200 rounded-lg bg-zinc-50 flex items-center justify-between cursor-pointer hover:border-indigo-500">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded bg-indigo-100 flex items-center justify-center">
+                        <BookOpen className="w-4 h-4 text-indigo-600" />
+                      </div>
+                      <span className="text-sm font-medium">Cybersecurity Basics 2024</span>
                     </div>
-                    <span className="text-sm font-medium">Cybersecurity Basics 2024</span>
+                    <Badge variant="secondary">Required</Badge>
                   </div>
-                  <Badge variant="secondary">Required</Badge>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-zinc-900">Assign to Team Members</label>
+                  <div className="border border-zinc-200 rounded-lg p-4 bg-zinc-50/50 border-dashed text-center">
+                    <p className="text-sm text-zinc-500 mb-2">Drag and drop team members here, or click to select.</p>
+                    <Button variant="outline" size="sm">Select Members</Button>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-900">Assign to Team Members</label>
-                <div className="border border-zinc-200 rounded-lg p-4 bg-zinc-50/50 border-dashed text-center">
-                  <p className="text-sm text-zinc-500 mb-2">Drag and drop team members here, or click to select.</p>
-                  <Button variant="outline" size="sm">Select Members</Button>
-                </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setIsAssignOpen(false)}>Cancel</Button>
+                <Button className="bg-indigo-600 text-white hover:bg-indigo-700">Assign Now</Button>
               </div>
-            </div>
-            <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setIsAssignOpen(false)}>Cancel</Button>
-              <Button className="bg-indigo-600 text-white hover:bg-indigo-700">Assign Now</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -242,11 +265,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-6 mt-2">
-              {[
-                { action: 'Charlie Davis completed', course: 'Cybersecurity Awareness', time: '2 hours ago', color: 'emerald' },
-                { action: 'Alice Johnson started', course: 'Project Management 101', time: '4 hours ago', color: 'indigo' },
-                { action: 'Diana Prince earned badge', course: 'Week Warrior', time: '6 hours ago', color: 'amber' },
-              ].map((activity, index) => (
+              {RECENT_ACTIVITIES.map((activity, index) => (
                 <div key={index} className="flex items-start gap-4">
                   <div className={cn(
                     "w-2.5 h-2.5 rounded-full mt-1.5 ring-4",
@@ -267,7 +286,7 @@ export default function AdminDashboard() {
         </Card>
 
       </div>
-    </div>
+    </div >
   )
 }
 
