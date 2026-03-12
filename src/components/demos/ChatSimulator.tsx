@@ -4,6 +4,7 @@ import { User, Shield, MessageSquare, Send, AlertTriangle, CheckCircle2, XCircle
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 type Message = {
     id: string
@@ -34,10 +35,9 @@ export default function ChatSimulator() {
     const chatEndRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        fetch('/api/demos/chat_scenario')
-            .then(res => res.json())
-            .then(data => {
-                setScenario(data)
+        api.get('/api/demos/chat_scenario')
+            .then(res => {
+                setScenario(res.data)
                 setLoading(false)
             })
             .catch(err => {
@@ -53,6 +53,7 @@ export default function ChatSimulator() {
             setIsAttackerTyping(true)
             const timer = setTimeout(() => {
                 const stage = scenario[currentStageId]
+                if (!stage) return;
                 const newMessage: Message = {
                     id: Date.now().toString(),
                     sender: 'attacker',
@@ -64,7 +65,7 @@ export default function ChatSimulator() {
             }, 1500)
             return () => clearTimeout(timer)
         }
-    }, [currentStageId, gameState])
+    }, [currentStageId, gameState, loading, scenario])
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -94,6 +95,10 @@ export default function ChatSimulator() {
         setCurrentStageId("start")
         setGameState('playing')
         setLastFeedback(null)
+    }
+
+    if (loading) {
+        return <div className="p-8 text-center text-zinc-500">Loading chat simulation...</div>
     }
 
     return (
@@ -161,7 +166,7 @@ export default function ChatSimulator() {
                             <MessageSquare className="w-3 h-3" /> Select your response
                         </p>
                         <div className="flex flex-col gap-2 animate-in slide-in-from-bottom-2 fade-in duration-500">
-                            {!isAttackerTyping && currentStageId && scenario && scenario[currentStageId].options.map((opt, i) => (
+                            {!isAttackerTyping && currentStageId && scenario && scenario[currentStageId] && scenario[currentStageId].options.map((opt, i) => (
                                 <button
                                     key={i}
                                     onClick={() => handleOptionSelect(opt)}

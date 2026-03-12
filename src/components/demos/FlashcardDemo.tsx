@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 interface Flashcard {
     front: string
@@ -18,10 +19,9 @@ export default function FlashcardDemo() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetch('/api/demos/flashcards')
-            .then(res => res.json())
-            .then((data: Flashcard[]) => {
-                setCards(data)
+        api.get('/api/demos/flashcards')
+            .then(res => {
+                setCards(res.data)
                 setLoading(false)
             })
             .catch(err => {
@@ -66,7 +66,7 @@ export default function FlashcardDemo() {
 
     return (
 
-        <div className="w-full max-w-sm mx-auto">
+        <div className="w-full max-sm mx-auto">
             {/* Card container */}
             <div
                 className="relative w-full h-56 cursor-pointer mb-4"

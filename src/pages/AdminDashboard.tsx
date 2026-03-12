@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Users, Clock, Award, Plus, Search, Filter, MoreHorizontal, BookOpen, TrendingUp, Database } from "lucide-react"
+import { api } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
 export default function AdminDashboard() {
@@ -14,10 +15,9 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/dashboard/admin')
-      .then(res => res.json())
-      .then(data => {
-        setDashboardData(data)
+    api.get('/api/dashboard/admin')
+      .then(res => {
+        setDashboardData(res.data)
         setLoading(false)
       })
       .catch(err => {

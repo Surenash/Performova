@@ -1,8 +1,9 @@
-import { useState } from "react"
-import { motion, AnimatePresence, Reorder } from "framer-motion"
-import { ShieldCheck, ShieldAlert, GripVertical, CheckCircle2, XCircle, RotateCcw } from "lucide-react"
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { ShieldCheck, ShieldAlert, GripVertical, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn, shuffleArray } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 interface SecurityItem {
     id: string;
@@ -20,9 +21,9 @@ export default function SecuritySortGame() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetch('/api/demos/security_sort')
-            .then(res => res.json())
-            .then((data: SecurityItem[]) => {
+        api.get('/api/demos/security_sort')
+            .then(res => {
+                const data = res.data
                 setOriginalItems(data)
                 setItems(shuffleArray([...data]))
                 setLoading(false)
@@ -53,7 +54,6 @@ export default function SecuritySortGame() {
     }
 
     const score = calculateScore()
-    const finished = items.length === 0 && originalItems.length > 0
 
     if (loading) {
         return <div className="p-8 text-center text-zinc-500">Loading security game...</div>
@@ -124,7 +124,7 @@ export default function SecuritySortGame() {
                                 animate={{ opacity: 1, y: 0 }}
                                 className="text-center py-12"
                             >
-                                <div className="text-4xl font-black text-zinc-900 mb-2">{score}/{ITEMS.length}</div>
+                                <div className="text-4xl font-black text-zinc-900 mb-2">{score}/{originalItems.length}</div>
                                 <p className="text-zinc-500 mb-6">Great session! You've sorted all behaviors.</p>
                                 {!showResults ? (
                                     <Button onClick={() => setShowResults(true)} className="bg-zinc-900 text-white w-full">See Explanations</Button>
