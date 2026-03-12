@@ -3,6 +3,7 @@ import { motion, AnimatePresence, Reorder } from "framer-motion"
 import { ShieldCheck, ShieldAlert, GripVertical, CheckCircle2, XCircle, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn, shuffleArray } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 interface SecurityItem {
     id: string;
@@ -20,9 +21,9 @@ export default function SecuritySortGame() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetch('/api/demos/security_sort')
-            .then(res => res.json())
-            .then((data: SecurityItem[]) => {
+        api.get('/api/demos/security_sort')
+            .then(res => {
+                const data = res.data
                 setOriginalItems(data)
                 setItems(shuffleArray([...data]))
                 setLoading(false)

@@ -4,6 +4,7 @@ import { ShieldAlert, AlertCircle, CheckCircle2, Info, Mail, Search } from "luci
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 interface RedFlag {
     id: string
@@ -20,10 +21,9 @@ export default function PhishingSimulator() {
     const [hoveredFlag, setHoveredFlag] = useState<string | null>(null)
 
     useEffect(() => {
-        fetch('/api/demos/phishing_simulator')
-            .then(res => res.json())
-            .then(data => {
-                setRedFlags(data)
+        api.get('/api/demos/phishing_simulator')
+            .then(res => {
+                setRedFlags(res.data)
                 setLoading(false)
             })
             .catch(err => {

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { CheckCircle2, XCircle, RotateCcw, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 interface MatchPair {
     protocol: string
@@ -20,12 +21,12 @@ export default function ProtocolMatchGame() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetch('/api/demos/protocol_match')
-            .then(res => res.json())
-            .then((data: MatchPair[]) => {
+        api.get('/api/demos/protocol_match')
+            .then(res => {
+                const data = res.data
                 setPairs(data)
                 // Shuffle ports uniquely
-                const ports = data.map(p => p.port)
+                const ports = data.map((p: MatchPair) => p.port)
                 for (let i = ports.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [ports[i], ports[j]] = [ports[j], ports[i]];

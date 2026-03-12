@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { CheckCircle2, XCircle, ArrowRight, RotateCcw, Trophy } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 interface Question {
     question: string
@@ -21,10 +22,9 @@ export default function QuickQuizDemo() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        fetch('/api/demos/quick_quiz')
-            .then(res => res.json())
-            .then((data: Question[]) => {
-                setQuestions(data)
+        api.get('/api/demos/quick_quiz')
+            .then(res => {
+                setQuestions(res.data)
                 setLoading(false)
             })
             .catch(err => {
@@ -32,6 +32,7 @@ export default function QuickQuizDemo() {
                 setLoading(false)
             })
     }, [])
+
 
     const question = questions[currentQ]
 

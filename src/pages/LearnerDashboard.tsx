@@ -12,18 +12,21 @@ export default function LearnerDashboard() {
   const navigate = useNavigate()
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [courses, setCourses] = useState<any[]>([])
   const [dashboardData, setDashboardData] = useState<{ path_nodes: any[], continue_courses: any[] }>({ path_nodes: [], continue_courses: [] })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const [userRes, dashRes] = await Promise.all([
+        const [userRes, dashRes, coursesRes] = await Promise.all([
           api.get('/api/users/me'),
-          fetch('/api/dashboard/learner').then(res => res.json())
+          api.get('/api/dashboard/learner'),
+          api.get('/api/courses')
         ]);
         setUser(userRes.data);
-        setDashboardData(dashRes);
+        setDashboardData(dashRes.data);
+        setCourses(coursesRes.data);
         setLoading(false);
       } catch (err) {
         console.error("Failed to fetch dashboard data", err);

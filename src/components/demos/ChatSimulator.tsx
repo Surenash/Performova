@@ -4,6 +4,7 @@ import { User, Shield, MessageSquare, Send, AlertTriangle, CheckCircle2, XCircle
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 type Message = {
     id: string
@@ -34,10 +35,9 @@ export default function ChatSimulator() {
     const chatEndRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        fetch('/api/demos/chat_scenario')
-            .then(res => res.json())
-            .then(data => {
-                setScenario(data)
+        api.get('/api/demos/chat_scenario')
+            .then(res => {
+                setScenario(res.data)
                 setLoading(false)
             })
             .catch(err => {

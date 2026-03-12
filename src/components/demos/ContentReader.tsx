@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import { BookOpen, ChevronLeft, ChevronRight, Minus, Plus, Clock } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { api } from "@/lib/api"
 
 interface ContentPage {
     title: string
@@ -18,10 +19,9 @@ export default function ContentReader() {
     const contentRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        fetch('/api/demos/content_reader')
-            .then(res => res.json())
-            .then(data => {
-                setPages(data)
+        api.get('/api/demos/content_reader')
+            .then(res => {
+                setPages(res.data)
                 setLoading(false)
             })
             .catch(err => {
