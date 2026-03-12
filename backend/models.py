@@ -29,9 +29,25 @@ class Course(Base):
     description = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
     is_published = Column(Boolean, default=False)
+    
+    # New fields for frontend catalog
+    category = Column(String, nullable=True)
+    time = Column(String, nullable=True)
+    format = Column(String, nullable=True)
+    difficulty = Column(String, nullable=True)
+    image = Column(String, nullable=True)
+    color = Column(String, nullable=True)
 
     lessons = relationship("Lesson", back_populates="course", cascade="all, delete")
     progress = relationship("UserProgress", back_populates="course", cascade="all, delete")
+
+class DemoConfig(Base):
+    """Generic table for all interactive demos to store varying structured data."""
+    __tablename__ = "demo_configs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    demo_type = Column(String, unique=True, index=True, nullable=False) # e.g., 'flashcards', 'quiz', 'security_sort'
+    config_json = Column(Text, nullable=False) # Stores the actual JSON array/object
 
 class Lesson(Base):
     __tablename__ = "lessons"

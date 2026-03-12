@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -6,28 +6,32 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { PlayCircle, Trophy, Flame, Star, CheckCircle2, Lock, Shield, Award, Play, MessageSquare, X, Send, Gamepad2, BookOpen, Video } from "lucide-react"
 import { cn } from "@/lib/utils"
-import ProtocolMatchGame from "@/components/demos/ProtocolMatchGame"
-import QuickQuizDemo from "@/components/demos/QuickQuizDemo"
-import FlashcardDemo from "@/components/demos/FlashcardDemo"
-import VideoPlayer from "@/components/demos/VideoPlayer"
-import ContentReader from "@/components/demos/ContentReader"
-
-const PATH_NODES = [
-  { id: 1, title: "Phishing 101", status: "completed", type: "lesson" },
-  { id: 2, title: "Password Security", status: "completed", type: "quiz" },
-  { id: 3, title: "Social Engineering", status: "current", type: "interactive" },
-  { id: 4, title: "Device Protection", status: "locked", type: "lesson" },
-  { id: 5, title: "Final Assessment", status: "locked", type: "quiz" },
-]
-
-const CONTINUE_COURSES = [
-  { id: 101, title: "Data Privacy Essentials", progress: 45, lessonsLeft: 3 },
-  { id: 102, title: "Incident Response", progress: 15, lessonsLeft: 8 },
-]
 
 export default function LearnerDashboard() {
   const navigate = useNavigate()
   const [isChatOpen, setIsChatOpen] = useState(false)
+  const [dashboardData, setDashboardData] = useState<{ path_nodes: any[], continue_courses: any[] }>({ path_nodes: [], continue_courses: [] })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/dashboard/learner')
+      .then(res => res.json())
+      .then(data => {
+        setDashboardData(data)
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error("Failed to fetch dashboard data:", err)
+        setLoading(false)
+      })
+  }, [])
+
+  const PATH_NODES = dashboardData.path_nodes
+  const CONTINUE_COURSES = dashboardData.continue_courses
+
+  if (loading) {
+    return <div className="p-8 text-center text-zinc-500">Loading your learning path...</div>
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

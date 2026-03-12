@@ -4,29 +4,43 @@ import { ShieldCheck, ShieldAlert, GripVertical, CheckCircle2, XCircle, RotateCc
 import { Button } from "@/components/ui/button"
 import { cn, shuffleArray } from "@/lib/utils"
 
-const ITEMS = [
-    { id: "1", text: "Using 'Password123' for all accounts", category: "risk", hint: "Reuse and weak patterns are easy to crack." },
-    { id: "2", text: "Enabling Multi-Factor Authentication (MFA)", category: "safe", hint: "Adds a critical layer of defense." },
-    { id: "3", text: "Leaving your laptop unlocked in a cafe", category: "risk", hint: "Physical access is a major vulnerability." },
-    { id: "4", text: "Updating software as soon as patches arrive", category: "safe", hint: "Patches fix known security holes." },
-    { id: "5", text: "Clicking 'Unsubscribe' in a spam email", category: "risk", hint: "Often confirms your email is active to spammers." },
-    { id: "6", text: "Using a unique passphrase for each service", category: "safe", hint: "Isolation prevents credential stuffing." },
-]
+interface SecurityItem {
+    id: string;
+    text: string;
+    category: string;
+    hint: string;
+}
 
 export default function SecuritySortGame() {
-    const [items, setItems] = useState(shuffleArray(ITEMS))
-    const [safeList, setSafeList] = useState<typeof ITEMS>([])
-    const [riskList, setRiskList] = useState<typeof ITEMS>([])
+    const [items, setItems] = useState<SecurityItem[]>([])
+    const [safeList, setSafeList] = useState<SecurityItem[]>([])
+    const [riskList, setRiskList] = useState<SecurityItem[]>([])
     const [showResults, setShowResults] = useState(false)
+    const [originalItems, setOriginalItems] = useState<SecurityItem[]>([])
+    const [loading, setLoading] = useState(true)
 
-    const handleSort = (item: typeof ITEMS[0], target: 'safe' | 'risk') => {
+    useEffect(() => {
+        fetch('/api/demos/security_sort')
+            .then(res => res.json())
+            .then((data: SecurityItem[]) => {
+                setOriginalItems(data)
+                setItems(shuffleArray([...data]))
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error(err)
+                setLoading(false)
+            })
+    }, [])
+
+    const handleSort = (item: SecurityItem, target: 'safe' | 'risk') => {
         setItems(prev => prev.filter(i => i.id !== item.id))
         if (target === 'safe') setSafeList(prev => [...prev, item])
         if (target === 'risk') setRiskList(prev => [...prev, item])
     }
 
     const handleReset = () => {
-        setItems(shuffleArray(ITEMS))
+        setItems(shuffleArray([...originalItems]))
         setSafeList([])
         setRiskList([])
         setShowResults(false)
@@ -39,7 +53,11 @@ export default function SecuritySortGame() {
     }
 
     const score = calculateScore()
-    const finished = items.length === 0
+    const finished = items.length === 0 && originalItems.length > 0
+
+    if (loading) {
+        return <div className="p-8 text-center text-zinc-500">Loading security game...</div>
+    }
 
     return (
         <div className="w-full max-w-4xl bg-zinc-50 rounded-3xl border border-zinc-200 p-8 shadow-sm">

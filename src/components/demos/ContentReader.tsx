@@ -7,45 +7,28 @@ interface ContentPage {
     content: string
 }
 
-const pages: ContentPage[] = [
-    {
-        title: "What is Social Engineering?",
-        content: `Social engineering is a manipulation technique that exploits human psychology rather than technical vulnerabilities. Attackers use deception to trick individuals into revealing confidential information, granting unauthorized access, or performing actions that compromise security.
 
-Unlike traditional hacking, social engineering targets the weakest link in any security system — the human element. Even the most sophisticated technical defenses can be bypassed by a well-crafted social engineering attack.
-
-**Key Principle:** Attackers exploit trust, fear, urgency, and authority to manipulate their targets. Understanding these psychological triggers is the first step in defending against them.`,
-    },
-    {
-        title: "Common Attack Vectors",
-        content: `**Phishing** — The most prevalent form of social engineering. Attackers send fraudulent emails that appear to come from legitimate sources. These emails often contain malicious links or attachments designed to steal credentials or install malware.
-
-**Pretexting** — The attacker creates a fabricated scenario (pretext) to engage the victim. For example, posing as an IT technician who needs the employee's password to "fix an issue."
-
-**Baiting** — Similar to phishing, but involves offering something enticing. This could be a USB drive labeled "Salary Information" left in a parking lot, or a free download that contains malware.
-
-**Tailgating** — An unauthorized person follows an authorized person into a restricted area. This exploits politeness and the tendency to hold doors open for others.`,
-    },
-    {
-        title: "How to Protect Yourself",
-        content: `**Verify Before Trusting** — Always verify the identity of someone requesting sensitive information, even if they claim to be from IT, management, or a known vendor. Use a separate communication channel to confirm.
-
-**Think Before You Click** — Hover over links before clicking to check the actual URL. Be suspicious of unexpected emails, especially those creating urgency or offering something too good to be true.
-
-**Report Suspicious Activity** — If something feels off, report it to your security team immediately. It's better to report a false positive than to ignore a real threat. Most organizations have a dedicated channel for reporting potential security incidents.
-
-**Stay Updated** — Social engineering tactics evolve constantly. Regular training and awareness programs help you recognize new attack patterns and stay vigilant. Remember: security is everyone's responsibility.`,
-    },
-]
 
 export default function ContentReader() {
+    const [pages, setPages] = useState<ContentPage[]>([])
     const [currentPage, setCurrentPage] = useState(0)
     const [fontSize, setFontSize] = useState(15)
     const [readProgress, setReadProgress] = useState(0)
+    const [loading, setLoading] = useState(true)
     const contentRef = useRef<HTMLDivElement>(null)
 
-    const page = pages[currentPage]
-    const readTime = Math.ceil(page.content.split(" ").length / 200) // ~200 wpm
+    useEffect(() => {
+        fetch('/api/demos/content_reader')
+            .then(res => res.json())
+            .then(data => {
+                setPages(data)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error("Failed to load content reader data:", err)
+                setLoading(false)
+            })
+    }, [])
 
     const handleScroll = () => {
         if (!contentRef.current) return
@@ -58,6 +41,13 @@ export default function ContentReader() {
         setReadProgress(0)
         if (contentRef.current) contentRef.current.scrollTop = 0
     }, [currentPage])
+
+    if (loading || pages.length === 0) {
+        return <div className="p-8 text-center text-zinc-500 bg-white rounded-2xl border border-zinc-200">Loading reader...</div>
+    }
+
+    const page = pages[currentPage]
+    const readTime = Math.ceil(page.content.split(" ").length / 200) // ~200 wpm
 
     const renderContent = (text: string) => {
         // Simple markdown-like rendering for bold text
