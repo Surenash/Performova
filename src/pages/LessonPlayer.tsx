@@ -6,10 +6,6 @@ import { Badge } from "@/components/ui/badge"
 import { CheckCircle2, XCircle, ChevronLeft, Menu, PlayCircle, FileText, MousePointer2, Gamepad2, Video, BookOpen, Flame, Trophy, Play, AlertTriangle, Lock, ShieldCheck, MessageSquare, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-<<<<<<< HEAD
-import { api } from "@/lib/api"
-=======
-
 // Import Learning Tools
 import VideoPlayer from "@/components/demos/VideoPlayer"
 import ContentReader from "@/components/demos/ContentReader"
@@ -35,38 +31,12 @@ const DEFAULT_SYLLABUS = [
   { id: 6, title: "Social Engineering Chat", type: "chat", duration: "6:00" },
   { id: 7, title: "Final Knowledge Check", type: "quiz", duration: "4:00" },
 ]
->>>>>>> feature/full-db-migration-and-auth
 
 export default function LessonPlayer() {
   const navigate = useNavigate()
   const { id: courseId } = useParams()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
-<<<<<<< HEAD
-  const [completedSteps, setCompletedSteps] = useState<number[]>([])
-  const [course, setCourse] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        const res = await api.get(`/api/courses/${courseId}`);
-        setCourse(res.data);
-      } catch (err) {
-        console.error("Failed to load course", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (courseId) {
-      fetchCourse();
-    }
-  }, [courseId]);
-
-  const SYLLABUS = course?.lessons || [];
-  const currentStep = SYLLABUS[currentStepIndex]
-  const progress = useMemo(() => SYLLABUS.length > 0 ? Math.round(((currentStepIndex) / SYLLABUS.length) * 100) : 0, [currentStepIndex])
-=======
   const [completedSteps, setCompletedSteps] = useState<number[]>([1]) // First one "done" for demo
   const [courseData, setCourseData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -108,7 +78,6 @@ export default function LessonPlayer() {
 
     fetchCourse()
   }, [courseId])
->>>>>>> feature/full-db-migration-and-auth
 
   const handleNext = () => {
     if (currentStepIndex < SYLLABUS.length - 1) {
@@ -134,26 +103,28 @@ export default function LessonPlayer() {
   }
 
   const renderContent = () => {
-<<<<<<< HEAD
-    if (loading) return (
+    if (isLoading) return (
        <div className="flex-1 flex items-center justify-center h-full text-center">
-         <p className="text-zinc-500 mb-4 animate-pulse">Loading course content...</p>
+         <div className="flex flex-col items-center gap-4">
+           <Loader2 className="w-12 h-12 text-indigo-600 animate-spin" />
+           <p className="text-zinc-500 font-medium">Loading course content...</p>
+         </div>
        </div>
     )
 
-    if (!currentStep) return (
+    if (!currentStep || Object.keys(currentStep).length === 0) return (
       <div className="flex-1 flex flex-col items-center justify-center h-full text-center">
-         <p className="text-zinc-500 mb-4">No content available for this lesson yet.</p>
-         <Button onClick={() => navigate('/learner')} variant="outline">Return to Dashboard</Button>
+         <div className="w-16 h-16 bg-zinc-100 rounded-2xl flex items-center justify-center mb-6">
+           <AlertTriangle className="w-8 h-8 text-zinc-400" />
+         </div>
+         <p className="text-zinc-900 font-bold text-xl mb-2">Lesson Not Found</p>
+         <p className="text-zinc-500 mb-8 max-w-sm">We couldn't find the content for this lesson. It might have been moved or deleted.</p>
+         <Button onClick={() => navigate('/learner')} variant="outline" className="rounded-xl">
+           Return to Dashboard
+         </Button>
       </div>
     )
 
-    return (
-       <div className="space-y-6">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-            <div className="text-lg text-zinc-600" dangerouslySetInnerHTML={{ __html: currentStep.content || 'No content provided.' }} />
-=======
     // Handle dynamic backend courses
     if (courseData) {
       if (currentStep.type === 'lesson') {
@@ -262,10 +233,11 @@ export default function LessonPlayer() {
               <p className="text-lg text-zinc-600">Watch the introduction to understand the core concepts of today's module.</p>
             </div>
             <VideoPlayer />
->>>>>>> feature/full-db-migration-and-auth
           </div>
-       </div>
-    )
+        )
+      default:
+        return null;
+    }
   }
 
   return (
@@ -286,11 +258,7 @@ export default function LessonPlayer() {
               </Button>
             </div>
             <div className="p-6 flex-1 overflow-y-auto w-[320px]">
-<<<<<<< HEAD
-              <h2 className="font-bold text-lg text-zinc-900 mb-2">{course?.title || "Loading..."}</h2>
-=======
               <h2 className="font-bold text-lg text-zinc-900 mb-2">{courseData?.title || "Cybersecurity Basics"}</h2>
->>>>>>> feature/full-db-migration-and-auth
               <div className="flex items-center gap-3 mb-6">
                 <Progress value={progress} className="h-2 flex-1" />
                 <span className="text-xs font-medium text-zinc-500">{progress}%</span>
@@ -347,11 +315,7 @@ export default function LessonPlayer() {
             >
               <Menu className="w-5 h-5 text-zinc-500" />
             </Button>
-<<<<<<< HEAD
-            <h1 className="font-bold text-zinc-900">{course?.title || "Loading..."}</h1>
-=======
             <h1 className="font-bold text-zinc-900">{courseData?.title || "Module 3: Social Engineering"}</h1>
->>>>>>> feature/full-db-migration-and-auth
           </div>
           <div className="flex items-center gap-3 text-sm font-medium text-zinc-500">
             Step {SYLLABUS.length > 0 ? currentStepIndex + 1 : 0} of {SYLLABUS.length}

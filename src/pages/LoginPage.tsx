@@ -13,42 +13,12 @@ const LoginPage = () => {
   const [password, setPassword] = useState('password');
   const [isAdmin, setIsAdmin] = useState(false);
   const [error, setError] = useState('');
-<<<<<<< HEAD
   const [loading, setLoading] = useState(false);
-=======
->>>>>>> feature/full-db-migration-and-auth
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-<<<<<<< HEAD
     setLoading(true);
-
-    try {
-      const formData = new URLSearchParams();
-      formData.append('username', email);
-      formData.append('password', password);
-
-      const response = await api.post('/api/token', formData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-
-      const { access_token, role } = response.data;
-      localStorage.setItem('token', access_token);
-      localStorage.setItem('role', role);
-
-      if (role === 'Admin') {
-        navigate('/admin');
-      } else {
-        navigate('/learner');
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
-    } finally {
-      setLoading(false);
-=======
 
     try {
       const formData = new URLSearchParams()
@@ -82,7 +52,8 @@ const LoginPage = () => {
     } catch (err) {
       console.error(err)
       setError("Network error connecting to the backend server. Is it running?");
->>>>>>> feature/full-db-migration-and-auth
+    } finally {
+      setLoading(false);
     }
   };
 

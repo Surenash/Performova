@@ -11,11 +11,7 @@ google-genai
 alembic
 pydantic
 pydantic-settings
-<<<<<<< HEAD
-bcrypt==4.0.1
-=======
 PyPDF2
 boto3
 faster-whisper
 ffmpeg-python
->>>>>>> feature/full-db-migration-and-auth

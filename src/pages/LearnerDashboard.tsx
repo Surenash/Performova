@@ -6,60 +6,49 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { PlayCircle, Trophy, Flame, Star, CheckCircle2, Lock, Shield, Award, Play, MessageSquare, X, Send, Gamepad2, BookOpen, Video } from "lucide-react"
 import { cn } from "@/lib/utils"
-<<<<<<< HEAD
 import { api } from "@/lib/api"
-=======
->>>>>>> feature/full-db-migration-and-auth
 
 export default function LearnerDashboard() {
   const navigate = useNavigate()
   const [isChatOpen, setIsChatOpen] = useState(false)
-<<<<<<< HEAD
   const [user, setUser] = useState<any>(null)
-  const [courses, setCourses] = useState<any[]>([])
+  const [dashboardData, setDashboardData] = useState<{ path_nodes: any[], continue_courses: any[] }>({ path_nodes: [], continue_courses: [] })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchAllData = async () => {
       try {
-        const [userRes, coursesRes] = await Promise.all([
+        const [userRes, dashRes] = await Promise.all([
           api.get('/api/users/me'),
-          api.get('/api/courses')
+          fetch('/api/dashboard/learner').then(res => res.json())
         ]);
         setUser(userRes.data);
-        setCourses(coursesRes.data);
+        setDashboardData(dashRes);
+        setLoading(false);
       } catch (err) {
         console.error("Failed to fetch dashboard data", err);
+        setLoading(false);
         if ((err as any).response?.status === 401) {
           navigate('/login');
         }
       }
     };
-    fetchDashboardData();
+    fetchAllData();
   }, [navigate]);
-=======
-  const [dashboardData, setDashboardData] = useState<{ path_nodes: any[], continue_courses: any[] }>({ path_nodes: [], continue_courses: [] })
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetch('/api/dashboard/learner')
-      .then(res => res.json())
-      .then(data => {
-        setDashboardData(data)
-        setLoading(false)
-      })
-      .catch(err => {
-        console.error("Failed to fetch dashboard data:", err)
-        setLoading(false)
-      })
-  }, [])
 
   const PATH_NODES = dashboardData.path_nodes
   const CONTINUE_COURSES = dashboardData.continue_courses
 
   if (loading) {
-    return <div className="p-8 text-center text-zinc-500">Loading your learning path...</div>
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-zinc-500 font-medium">Loading your personalized path...</p>
+        </div>
+      </div>
+    );
   }
->>>>>>> feature/full-db-migration-and-auth
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
