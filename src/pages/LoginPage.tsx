@@ -1,24 +1,49 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Award, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Award, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { api } from '@/lib/api';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('learner@example.com');
+  const [password, setPassword] = useState('password');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock login - redirect based on role
-    if (isAdmin) {
-      navigate('/admin');
-    } else {
-      navigate('/learner');
+    setError('');
+    setLoading(true);
+
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', email);
+      formData.append('password', password);
+
+      const response = await api.post('/api/token', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+
+      const { access_token, role } = response.data;
+      localStorage.setItem('token', access_token);
+      localStorage.setItem('role', role);
+
+      if (role === 'Admin') {
+        navigate('/admin');
+      } else {
+        navigate('/learner');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,6 +72,13 @@ const LoginPage = () => {
               <TabsTrigger value="learner" data-testid="learner-tab">Learner</TabsTrigger>
               <TabsTrigger value="admin" data-testid="admin-tab">Admin</TabsTrigger>
             </TabsList>
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-xl flex items-center gap-2 text-sm border border-red-200">
+                <AlertCircle className="w-4 h-4" />
+                {error}
+              </div>
+            )}
 
             <TabsContent value="learner">
               <form onSubmit={handleLogin} className="space-y-4">
@@ -84,10 +116,11 @@ const LoginPage = () => {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 rounded-full bg-indigo-600 text-white font-bold text-lg shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                  disabled={loading}
+                  className="w-full h-12 rounded-full bg-indigo-600 text-white font-bold text-lg shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   data-testid="login-button"
                 >
-                  Sign In as Learner
+                  {loading ? 'Signing in...' : 'Sign In as Learner'}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </form>
@@ -129,10 +162,11 @@ const LoginPage = () => {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 rounded-full bg-indigo-600 text-white font-bold text-lg shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                  disabled={loading}
+                  className="w-full h-12 rounded-full bg-indigo-600 text-white font-bold text-lg shadow-lg shadow-indigo-200 hover:shadow-xl hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   data-testid="admin-login-button"
                 >
-                  Sign In as Admin
+                  {loading ? 'Signing in...' : 'Sign In as Admin'}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </form>

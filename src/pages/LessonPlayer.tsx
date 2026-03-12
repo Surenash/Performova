@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -6,37 +6,36 @@ import { Badge } from "@/components/ui/badge"
 import { CheckCircle2, XCircle, ChevronLeft, Menu, PlayCircle, FileText, MousePointer2, Gamepad2, Video, BookOpen, Flame, Trophy, Play, AlertTriangle, Lock, ShieldCheck, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-
-// Import Learning Tools
-import VideoPlayer from "@/components/demos/VideoPlayer"
-import ContentReader from "@/components/demos/ContentReader"
-import ProtocolMatchGame from "@/components/demos/ProtocolMatchGame"
-import QuickQuizDemo from "@/components/demos/QuickQuizDemo"
-import FlashcardDemo from "@/components/demos/FlashcardDemo"
-import PhishingSimulator from "@/components/demos/PhishingSimulator"
-import SecuritySortGame from "@/components/demos/SecuritySortGame"
-import PasswordChallenge from "@/components/demos/PasswordChallenge"
-import ChatSimulator from "@/components/demos/ChatSimulator"
-
-const SYLLABUS = [
-  { id: 1, title: "Introduction Video", type: "video", duration: "2:30" },
-  { id: 2, title: "Email Inspector", type: "phishing", duration: "5:00" },
-  { id: 3, title: "Password Wall", type: "password", duration: "4:00" },
-  { id: 4, title: "Reading: Reporting Protocols", type: "reading", duration: "3:00" },
-  { id: 5, title: "Security Sort", type: "sort", duration: "4:00" },
-  { id: 6, title: "Social Engineering Chat", type: "chat", duration: "6:00" },
-  { id: 7, title: "Final Knowledge Check", type: "quiz", duration: "4:00" },
-]
+import { api } from "@/lib/api"
 
 export default function LessonPlayer() {
   const navigate = useNavigate()
   const { id: courseId } = useParams()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
-  const [completedSteps, setCompletedSteps] = useState<number[]>([1]) // First one "done" for demo
+  const [completedSteps, setCompletedSteps] = useState<number[]>([])
+  const [course, setCourse] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        const res = await api.get(`/api/courses/${courseId}`);
+        setCourse(res.data);
+      } catch (err) {
+        console.error("Failed to load course", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (courseId) {
+      fetchCourse();
+    }
+  }, [courseId]);
+
+  const SYLLABUS = course?.lessons || [];
   const currentStep = SYLLABUS[currentStepIndex]
-  const progress = useMemo(() => Math.round(((currentStepIndex) / SYLLABUS.length) * 100), [currentStepIndex])
+  const progress = useMemo(() => SYLLABUS.length > 0 ? Math.round(((currentStepIndex) / SYLLABUS.length) * 100) : 0, [currentStepIndex])
 
   const handleNext = () => {
     if (currentStepIndex < SYLLABUS.length - 1) {
@@ -59,111 +58,27 @@ export default function LessonPlayer() {
   }
 
   const renderContent = () => {
-    switch (currentStep.type) {
-      case 'video':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8">
-              <Badge variant="outline" className="mb-4 text-red-600 border-red-200 bg-red-50 flex w-fit items-center gap-1.5">
-                <Video className="w-3.5 h-3.5" /> Video Lesson
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Watch the introduction to understand the core concepts of today's module.</p>
-            </div>
-            <VideoPlayer />
+    if (loading) return (
+       <div className="flex-1 flex items-center justify-center h-full text-center">
+         <p className="text-zinc-500 mb-4 animate-pulse">Loading course content...</p>
+       </div>
+    )
+
+    if (!currentStep) return (
+      <div className="flex-1 flex flex-col items-center justify-center h-full text-center">
+         <p className="text-zinc-500 mb-4">No content available for this lesson yet.</p>
+         <Button onClick={() => navigate('/learner')} variant="outline">Return to Dashboard</Button>
+      </div>
+    )
+
+    return (
+       <div className="space-y-6">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
+            <div className="text-lg text-zinc-600" dangerouslySetInnerHTML={{ __html: currentStep.content || 'No content provided.' }} />
           </div>
-        )
-      case 'reading':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8">
-              <Badge variant="outline" className="mb-4 text-teal-600 border-teal-200 bg-teal-50 flex w-fit items-center gap-1.5">
-                <BookOpen className="w-3.5 h-3.5" /> Reading Material
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Deep-dive into the technical protocols and reporting procedures.</p>
-            </div>
-            <ContentReader />
-          </div>
-        )
-      case 'phishing':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-red-600 border-red-200 bg-red-50 mx-auto flex w-fit items-center gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5" /> Interactive Sandbox
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Can you spot the red flags in this suspicious email?</p>
-            </div>
-            <div className="flex justify-center">
-              <PhishingSimulator />
-            </div>
-          </div>
-        )
-      case 'password':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-indigo-600 border-indigo-200 bg-indigo-50 mx-auto flex w-fit items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5" /> Security Challenge
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Think your password is strong? Let's put it to the test.</p>
-            </div>
-            <div className="flex justify-center">
-              <PasswordChallenge />
-            </div>
-          </div>
-        )
-      case 'sort':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-emerald-600 border-emerald-200 bg-emerald-50 mx-auto flex w-fit items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5" /> Interactive Sorting
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Review your daily habits and decide if they are safe or a security risk.</p>
-            </div>
-            <div className="flex justify-center">
-              <SecuritySortGame />
-            </div>
-          </div>
-        )
-      case 'chat':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-indigo-600 border-indigo-200 bg-indigo-50 mx-auto flex w-fit items-center gap-1.5">
-                <MessageSquare className="w-3.5 h-3.5" /> Social Engineering Sim
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">An attacker is trying to trick you. Choose your responses wisely.</p>
-            </div>
-            <div className="flex justify-center">
-              <ChatSimulator />
-            </div>
-          </div>
-        )
-      case 'quiz':
-        return (
-          <div className="space-y-6">
-            <div className="mb-8 text-center max-w-xl mx-auto">
-              <Badge variant="outline" className="mb-4 text-emerald-600 border-emerald-200 bg-emerald-50 mx-auto flex w-fit items-center gap-1.5">
-                <Trophy className="w-3.5 h-3.5" /> Final Knowledge Check
-              </Badge>
-              <h2 className="text-3xl font-bold text-zinc-900 mb-4">{currentStep.title}</h2>
-              <p className="text-lg text-zinc-600">Test your understanding of the entire module.</p>
-            </div>
-            <div className="flex justify-center">
-              <QuickQuizDemo />
-            </div>
-          </div>
-        )
-      default:
-        return null
-    }
+       </div>
+    )
   }
 
   return (
@@ -184,13 +99,13 @@ export default function LessonPlayer() {
               </Button>
             </div>
             <div className="p-6 flex-1 overflow-y-auto w-[320px]">
-              <h2 className="font-bold text-lg text-zinc-900 mb-2">Cybersecurity Basics</h2>
+              <h2 className="font-bold text-lg text-zinc-900 mb-2">{course?.title || "Loading..."}</h2>
               <div className="flex items-center gap-3 mb-6">
                 <Progress value={progress} className="h-2 flex-1" />
                 <span className="text-xs font-medium text-zinc-500">{progress}%</span>
               </div>
               <div className="space-y-1">
-                {SYLLABUS.map((item, index) => {
+                {SYLLABUS.map((item: any, index: number) => {
                   const isActive = currentStepIndex === index
                   const isDone = completedSteps.includes(item.id)
                   return (
@@ -217,7 +132,7 @@ export default function LessonPlayer() {
                       <div className="flex-1 min-w-0">
                         <p className={cn("text-sm font-bold truncate", isActive ? "text-indigo-700" : "text-zinc-700")}>{item.title}</p>
                         <div className="flex items-center gap-2 mt-1 text-[10px] uppercase font-bold tracking-wider opacity-60">
-                          {item.type} &bull; {item.duration}
+                          Lesson {index + 1}
                         </div>
                       </div>
                     </button>
@@ -241,23 +156,26 @@ export default function LessonPlayer() {
             >
               <Menu className="w-5 h-5 text-zinc-500" />
             </Button>
-            <h1 className="font-bold text-zinc-900">Module 3: Social Engineering</h1>
+            <h1 className="font-bold text-zinc-900">{course?.title || "Loading..."}</h1>
           </div>
           <div className="flex items-center gap-3 text-sm font-medium text-zinc-500">
-            Step {currentStepIndex + 1} of {SYLLABUS.length}
+            Step {SYLLABUS.length > 0 ? currentStepIndex + 1 : 0} of {SYLLABUS.length}
           </div>
         </header>
 
         <div className="flex-1 overflow-y-auto p-6 md:p-12">
-          <motion.div
-            key={currentStep.id}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-            className="max-w-4xl mx-auto mb-20"
-          >
-            {renderContent()}
-          </motion.div>
+          {currentStep && (
+            <motion.div
+              key={currentStep.id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+              className="max-w-4xl mx-auto mb-20"
+            >
+              {renderContent()}
+            </motion.div>
+          )}
+          {!currentStep && renderContent()}
         </div>
 
         {/* Sticky Action Bar */}

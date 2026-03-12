@@ -10,3 +10,4 @@ google-genai
 alembic
 pydantic
 pydantic-settings
+bcrypt==4.0.1
