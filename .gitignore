@@ -7,3 +7,4 @@ coverage/
 .env*
 lms.db
 !.env.example
+venv/
