@@ -15,3 +15,5 @@ PyPDF2
 boto3
 faster-whisper
 ffmpeg-python
+asyncpg
+psycopg2-binary
