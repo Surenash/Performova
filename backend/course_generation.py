@@ -9,7 +9,7 @@ import json
 import uuid
 import shutil
 from backend.database import get_db
-from backend.models import Course, Lesson, Question, User
+from backend.models import Course, Module, Lesson, Question, User
 from backend.auth import get_current_active_user
 from pydantic import BaseModel
 from backend.video_processing import transcode_video, transcribe_video_audio, upload_to_s3, generate_presigned_url
@@ -186,7 +186,7 @@ async def generate_course(files: List[UploadFile] = File(...), current_user: Use
 
     try:
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash",
             contents=prompt,
             config=genai.types.GenerateContentConfig(
                 temperature=0.2, # Lower temperature for more structured JSON
@@ -219,24 +219,38 @@ async def save_course(request: SaveCourseRequest, db: AsyncSession = Depends(get
     new_course = Course(
         title=request.title,
         description=request.description,
-        is_published=True # For simplicity, publish immediately
+        is_published=True, # For simplicity, publish immediately
+        time=30 # Default 30 mins, could be calculated later
     )
     db.add(new_course)
     await db.commit()
     await db.refresh(new_course)
 
-    lesson_order = 0
+    module_order = 0
     # Process modules/lessons
-    for module in request.modules:
-        for item in module.get("lessons", []):
+    for module_data in request.modules:
+        module_order += 1
+        new_module = Module(
+            course_id=new_course.id,
+            title=module_data.get("title", f"Module {module_order}"),
+            description=module_data.get("description", ""),
+            order=module_order
+        )
+        db.add(new_module)
+        await db.commit()
+        await db.refresh(new_module)
+
+        lesson_order = 0
+        for item in module_data.get("lessons", []):
             lesson_order += 1
             new_lesson = Lesson(
-                course_id=new_course.id,
-                title=f"{module.get('title', 'Module')} - {item.get('title', 'Lesson')}",
+                module_id=new_module.id,
+                title=item.get("title", "Lesson"),
                 type=item.get("type", "lesson"),
                 content=item.get("content", ""),
                 video_url=item.get("video_url"),
-                order=lesson_order
+                order=lesson_order,
+                estimated_time=5 # Default 5 mins per lesson
             )
             db.add(new_lesson)
             await db.commit()

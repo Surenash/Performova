@@ -5,19 +5,25 @@ import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Users, Clock, Award, Plus, Search, Filter, MoreHorizontal, BookOpen, TrendingUp, Database } from "lucide-react"
+import { Users, Clock, Award, Plus, Search, Filter, MoreHorizontal, BookOpen, TrendingUp, Database, BarChart3, Target, DollarSign } from "lucide-react"
 import { api } from "@/lib/api"
 import { cn } from "@/lib/utils"
+import { Link } from "react-router-dom"
 
 export default function AdminDashboard() {
   const [isAssignOpen, setIsAssignOpen] = useState(false)
-  const [dashboardData, setDashboardData] = useState<{ team: any[], activities: any[] }>({ team: [], activities: [] })
+  const [dashboardData, setDashboardData] = useState<any>({ team: [], activities: [], stats: {} })
+  const [advancedStats, setAdvancedStats] = useState<any>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.get('/api/dashboard/admin')
-      .then(res => {
+    Promise.all([
+      api.get('/api/dashboard/admin/real-stats'),
+      api.get('/api/analytics/summary')
+    ])
+      .then(([res, adv]) => {
         setDashboardData(res.data)
+        setAdvancedStats(adv.data)
         setLoading(false)
       })
       .catch(err => {
@@ -26,21 +32,38 @@ export default function AdminDashboard() {
       })
   }, [])
 
-  const TEAM_DATA = dashboardData.team
-  const RECENT_ACTIVITIES = dashboardData.activities
+  const TEAM_DATA = dashboardData.team || []
+  const RECENT_ACTIVITIES = dashboardData.activities || []
+  const STATS = dashboardData.stats || {}
 
   if (loading) {
-    return <div className="p-8 text-center text-zinc-500">Loading admin dashboard...</div>
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-zinc-500 font-medium tracking-tight">Syncing with backend...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Team Overview</h1>
-          <p className="text-sm text-zinc-500">Monitor learning progress and manage the system database.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-900">Admin Overview</h1>
+          <p className="text-sm text-zinc-500">Monitor live system performance and team engagement.</p>
         </div>
         <div className="flex gap-3">
+          <Button
+            asChild
+            variant="outline"
+            className="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+          >
+            <Link to="/admin/analytics">
+              <BarChart3 className="w-4 h-4 mr-2" /> Advanced Insights
+            </Link>
+          </Button>
           <Button
             variant="outline"
             className="border-zinc-200 text-zinc-700 hover:bg-zinc-50"
@@ -92,49 +115,49 @@ export default function AdminDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-500">Active Learners</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-500">Learner Reach</CardTitle>
             <Users className="h-4 w-4 text-indigo-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-zinc-900">124</div>
+            <div className="text-2xl font-bold text-zinc-900">{advancedStats.active_learners || STATS.activeLearners}</div>
             <p className="text-xs text-emerald-600 flex items-center mt-1">
-              <span className="font-medium">+12%</span> from last month
+              Active accounts
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-500">Avg. Completion Time</CardTitle>
-            <Clock className="h-4 w-4 text-blue-500" />
+            <CardTitle className="text-sm font-medium text-zinc-500">Global Mastery</CardTitle>
+            <Target className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-zinc-900">4.2 hrs</div>
-            <p className="text-xs text-emerald-600 flex items-center mt-1">
-              <span className="font-medium">-15%</span> faster than avg
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-500">Certificates Earned</CardTitle>
-            <Award className="h-4 w-4 text-emerald-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-zinc-900">892</div>
+            <div className="text-2xl font-bold text-zinc-900">{advancedStats.skills_mastered || 0}</div>
             <p className="text-xs text-zinc-500 mt-1">
-              Across 15 active courses
+              High-proficiency skills
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-500">Completion Rate</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-500">Course Investment</CardTitle>
+            <DollarSign className="h-4 w-4 text-emerald-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-zinc-900">${advancedStats.total_investment?.toLocaleString() || 0}</div>
+            <p className="text-xs text-zinc-500 mt-1">
+              Estimated asset value
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-zinc-500">Efficiency Index</CardTitle>
             <TrendingUp className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-zinc-900">86%</div>
+            <div className="text-2xl font-bold text-zinc-900">{advancedStats.completion_rate || STATS.completionRate}%</div>
             <p className="text-xs text-zinc-500 mt-1">
-              Team average
+              Target vs Actual completions
             </p>
           </CardContent>
         </Card>

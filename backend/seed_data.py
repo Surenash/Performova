@@ -1,20 +1,22 @@
 import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from backend.models import Course, DemoConfig, User
+from backend.models import Course, DemoConfig, User, Department, Team, Module, Lesson, CourseAssignment
 from backend.auth import get_password_hash
+from datetime import datetime, timedelta
 
 # 1. Mock Courses
+# time converted to Integer (minutes)
 COURSES_DATA = [
-  { "id": 1, "title": "Data Privacy 101", "category": "Compliance", "time": "15 min", "format": "interactive", "difficulty": "Beginner", "image": "https://picsum.photos/seed/privacy/400/200", "color": "bg-blue-100", "is_published": True },
-  { "id": 2, "title": "Effective Feedback", "category": "Leadership", "time": "30 min", "format": "video", "difficulty": "Intermediate", "image": "https://picsum.photos/seed/feedback/400/200", "color": "bg-purple-100", "is_published": True },
-  { "id": 3, "title": "Phishing Defense", "category": "Security", "time": "10 min", "format": "interactive", "difficulty": "Beginner", "image": "https://picsum.photos/seed/phishing/400/200", "color": "bg-red-100", "is_published": True },
-  { "id": 4, "title": "React Advanced", "category": "Technical", "time": "2 hrs", "format": "text", "difficulty": "Advanced", "image": "https://picsum.photos/seed/react/400/200", "color": "bg-cyan-100", "is_published": True },
-  { "id": 5, "title": "Company Culture", "category": "Onboarding", "time": "20 min", "format": "video", "difficulty": "Beginner", "image": "https://picsum.photos/seed/culture/400/200", "color": "bg-orange-100", "is_published": True },
-  { "id": 6, "title": "Secure Coding", "category": "Security", "time": "45 min", "format": "interactive", "difficulty": "Intermediate", "image": "https://picsum.photos/seed/secure/400/200", "color": "bg-emerald-100", "is_published": True },
+  { "id": 1, "title": "Data Privacy 101", "category": "Compliance", "time": 15, "format": "interactive", "difficulty": "Beginner", "image": "https://picsum.photos/seed/privacy/400/200", "color": "bg-blue-100", "is_published": True },
+  { "id": 2, "title": "Effective Feedback", "category": "Leadership", "time": 30, "format": "video", "difficulty": "Intermediate", "image": "https://picsum.photos/seed/feedback/400/200", "color": "bg-purple-100", "is_published": True },
+  { "id": 3, "title": "Phishing Defense", "category": "Security", "time": 10, "format": "interactive", "difficulty": "Beginner", "image": "https://picsum.photos/seed/phishing/400/200", "color": "bg-red-100", "is_published": True },
+  { "id": 4, "title": "React Advanced", "category": "Technical", "time": 120, "format": "text", "difficulty": "Advanced", "image": "https://picsum.photos/seed/react/400/200", "color": "bg-cyan-100", "is_published": True },
+  { "id": 5, "title": "Company Culture", "category": "Onboarding", "time": 20, "format": "video", "difficulty": "Beginner", "image": "https://picsum.photos/seed/culture/400/200", "color": "bg-orange-100", "is_published": True },
+  { "id": 6, "title": "Secure Coding", "category": "Security", "time": 45, "format": "interactive", "difficulty": "Intermediate", "image": "https://picsum.photos/seed/secure/400/200", "color": "bg-emerald-100", "is_published": True },
 ]
 
-# 2. Mock Flashcards
+# ... FLASHCARDS_DATA, SECURITY_SORT_DATA, PROTOCOL_MATCH_DATA, QUICK_QUIZ_DATA, CHAT_SCENARIO_DATA, DASHBOARD_DATA, CONTENT_READER_DATA, PHISHING_SIMULATOR_DATA remain same ...
 FLASHCARDS_DATA = [
     { "front": "What is a firewall?", "back": "A network security device that monitors and filters incoming and outgoing network traffic based on an organization's security policies.", "category": "Network Security" },
     { "front": "What is encryption?", "back": "The process of converting information into a secret code that hides the information's true meaning. Only authorized parties can decipher it.", "category": "Data Protection" },
@@ -22,7 +24,6 @@ FLASHCARDS_DATA = [
     { "front": "What is a VPN?", "back": "A Virtual Private Network creates an encrypted connection over the internet between a device and a network, protecting data in transit.", "category": "Network Security" },
 ]
 
-# 3. Mock Security Sort Game Items
 SECURITY_SORT_DATA = [
     { "id": "1", "text": "Using 'Password123' for all accounts", "category": "risk", "hint": "Reuse and weak patterns are easy to crack." },
     { "id": "2", "text": "Enabling Multi-Factor Authentication (MFA)", "category": "safe", "hint": "Adds a critical layer of defense." },
@@ -32,21 +33,18 @@ SECURITY_SORT_DATA = [
     { "id": "6", "text": "Using a unique passphrase for each service", "category": "safe", "hint": "Isolation prevents credential stuffing." },
 ]
 
-# 4. Mock Protocol Match Game Pairs
 PROTOCOL_MATCH_DATA = [
     { "protocol": "HTTPS", "port": "Port 443" },
     { "protocol": "SSH", "port": "Port 22" },
     { "protocol": "FTP", "port": "Port 21" },
 ]
 
-# 5. Mock Quick Quiz Questions
 QUICK_QUIZ_DATA = [
     { "question": "What is the first step in a phishing attack?", "options": ["Clicking a suspicious link", "Receiving a deceptive email", "Downloading malware", "Sharing your password"], "correctIndex": 1, "explanation": "Phishing starts with the attacker sending a deceptive email designed to look legitimate." },
     { "question": "Which password is the most secure?", "options": ["password123", "MyDog'sName", "Tr0ub4dor&3", "j7$kL9!mNq2@xW"], "correctIndex": 3, "explanation": "Long, random passwords with mixed characters are the strongest against brute-force attacks." },
     { "question": "What does 2FA stand for?", "options": ["Two-Factor Authentication", "Two-File Authorization", "Two-Form Access", "Two-Firewall Application"], "correctIndex": 0, "explanation": "Two-Factor Authentication adds a second layer of verification beyond just a password." },
 ]
 
-# 6. Mock Chat Simulator Scenario
 CHAT_SCENARIO_DATA = {
     "start": {
         "attackerMessage": "Hi! This is Sarah from HR. We're having some trouble with the payroll system for your department. Could you help me verify your employee ID and just the last 4 digits of your SSN? I want to make sure you get paid on time!",
@@ -72,7 +70,6 @@ CHAT_SCENARIO_DATA = {
     }
 }
 
-# 7. Mock Dashboards Data
 DASHBOARD_DATA = {
     "learner": {
         "path_nodes": [
@@ -103,7 +100,6 @@ DASHBOARD_DATA = {
     }
 }
 
-# 8. Mock Content Reader Data
 CONTENT_READER_DATA = [
     {
         "title": "What is Social Engineering?",
@@ -119,7 +115,6 @@ CONTENT_READER_DATA = [
     }
 ]
 
-# 9. Mock Phishing Simulator Data
 PHISHING_SIMULATOR_DATA = [
     {
         "id": "sender",
@@ -142,42 +137,111 @@ PHISHING_SIMULATOR_DATA = [
 ]
 
 async def seed_database(session: AsyncSession):
+    # Seed Departments and Teams
+    result = await session.execute(select(Department))
+    if not result.scalars().first():
+        print("Seeding Departments and Teams...")
+        dept_eng = Department(name="Engineering", description="Software development and operations")
+        dept_hr = Department(name="Human Resources", description="People and culture")
+        session.add_all([dept_eng, dept_hr])
+        await session.commit()
+        await session.refresh(dept_eng)
+        await session.refresh(dept_hr)
+        
+        team_fe = Team(name="Frontend", department_id=dept_eng.id)
+        team_be = Team(name="Backend", department_id=dept_eng.id)
+        team_rec = Team(name="Recruiting", department_id=dept_hr.id)
+        session.add_all([team_fe, team_be, team_rec])
+        await session.commit()
+
+    # Get IDs for assignment
+    res_dept = await session.execute(select(Department).filter(Department.name == "Cybersecurity"))
+    eng_dept_id = res_dept.scalars().first().id
+    res_team = await session.execute(select(Team).filter(Team.name == "Red Team"))
+    fe_team_id = res_team.scalars().first().id
+
     # Seed Users
     result = await session.execute(select(User))
     existing_users = result.scalars().all()
-    if len(existing_users) <= 1: # Only admin might exist from main.py
+    if len(existing_users) <= 1: 
         print("Seeding Users...")
-        # Get team data to create matching accounts
-        team = DASHBOARD_DATA["admin"]["team"]
-        
-        # Admin User uses main.py, but make sure Learner is seeded
+        team_members = DASHBOARD_DATA["admin"]["team"]
         default_pwd = get_password_hash("admin")
         
-        learner = User(email="learner@performova.com", hashed_password=default_pwd, full_name="Valued Trainee", role="Learner")
-        session.add(learner)
-
-        for member in team:
-            # Create email from name, e.g. Alice Johnson -> alice@performova.com
-            email = member["name"].split(" ")[0].lower() + "@performova.com"
-            new_user = User(
-                email=email,
-                hashed_password=default_pwd,
-                full_name=member["name"],
+        # Check if learner exists before adding
+        res_learner = await session.execute(select(User).filter(User.email == "learner@performa.com"))
+        if not res_learner.scalars().first():
+            learner_performa = User(
+                email="learner@performa.com", 
+                hashed_password=default_pwd, 
+                full_name="Valued Trainee", 
                 role="Learner",
-                department=member["role"],
-                streak_days=member["progress"] % 10,
-                xp_points=member["coursesCompleted"] * 150
+                department_id=eng_dept_id,
+                team_id=fe_team_id
             )
-            session.add(new_user)
+            session.add(learner_performa)
+
+        for member in team_members:
+            email = member["name"].split(" ")[0].lower() + "@performa.com"
+            res_user = await session.execute(select(User).filter(User.email == email))
+            if not res_user.scalars().first():
+                new_user = User(
+                    email=email,
+                    hashed_password=default_pwd,
+                    full_name=member["name"],
+                    role="Learner",
+                    department_id=eng_dept_id,
+                    team_id=fe_team_id,
+                    streak_days=member["progress"] % 10,
+                    xp_points=member["coursesCompleted"] * 150
+                )
+                session.add(new_user)
+        await session.commit()
 
     # Seed Courses if empty
     result = await session.execute(select(Course))
     existing_courses = result.scalars().all()
     if not existing_courses:
-        print("Seeding Courses...")
+        print("Seeding Courses and Modules...")
         for c in COURSES_DATA:
             nc = Course(**c)
             session.add(nc)
+            await session.commit()
+            await session.refresh(nc)
+            
+            # Add a default module for each course
+            mod = Module(
+                course_id=nc.id,
+                title="Introduction",
+                description=f"Initial lessons for {nc.title}",
+                order=1
+            )
+            session.add(mod)
+            await session.commit()
+            await session.refresh(mod)
+            
+            # Add a sample lesson
+            lesson = Lesson(
+                module_id=mod.id,
+                title="Welcome to the course",
+                content=f"This is the first lesson of {nc.title}.",
+                order=1,
+                estimated_time=5
+            )
+            session.add(lesson)
+            
+            # Create a sample assignment for the first user
+            res_u = await session.execute(select(User).limit(1))
+            u = res_u.scalars().first()
+            if u:
+                assignment = CourseAssignment(
+                    user_id=u.id,
+                    course_id=nc.id,
+                    is_mandatory=True,
+                    due_date=datetime.utcnow() + timedelta(days=7)
+                )
+                session.add(assignment)
+        await session.commit()
     
     # Seed DemoConfigs
     result = await session.execute(select(DemoConfig))

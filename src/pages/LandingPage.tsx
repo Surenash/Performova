@@ -9,6 +9,10 @@ import { cn } from "@/lib/utils"
 import { Link } from "react-router-dom"
 import QuickQuizDemo from "@/components/demos/QuickQuizDemo"
 import ProtocolMatchGame from "@/components/demos/ProtocolMatchGame"
+import MultipleChoice from "@/components/demos/MultipleChoice"
+import MatchThePair from "@/components/demos/MatchThePair"
+import FlashcardDemo from "@/components/demos/FlashcardDemo"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function LandingPage() {
   const [annual, setAnnual] = useState(true)
@@ -271,14 +275,50 @@ export default function LandingPage() {
             <div className="order-2 md:order-1 bg-zinc-50 rounded-3xl p-8 border border-zinc-100 shadow-sm relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-transparent opacity-50"></div>
               <div className="relative z-10">
-                <ProtocolMatchGame />
+                <Tabs defaultValue="mcq" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3 mb-8 bg-white/50 border border-zinc-200">
+                    <TabsTrigger value="mcq">MCQ</TabsTrigger>
+                    <TabsTrigger value="match">Match</TabsTrigger>
+                    <TabsTrigger value="flash">Flashcards</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="mcq" className="bg-white p-6 rounded-2xl shadow-sm border border-zinc-100 min-h-[400px]">
+                    <MultipleChoice 
+                      question="Which of these is the most common sign of a phishing email?"
+                      options={[
+                        "Urgent or threatening language",
+                        "A generic greeting like 'Dear Customer'",
+                        "Suspicious links or unexpected attachments",
+                        "All of the above"
+                      ]}
+                      correctAnswer="All of the above"
+                      onComplete={() => {}}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="match" className="bg-white p-6 rounded-2xl shadow-sm border border-zinc-100 min-h-[400px]">
+                    <MatchThePair 
+                      question="Match the security term to its definition."
+                      pairs={[
+                        { left: "Phishing", right: "Fraudulent emails to steal data" },
+                        { left: "Firewall", right: "Monitors network traffic" },
+                        { left: "Encryption", right: "Scrambles data for privacy" }
+                      ]}
+                      onComplete={() => {}}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="flash" className="bg-white p-6 rounded-2xl shadow-sm border border-zinc-100 min-h-[400px] flex items-center justify-center">
+                    <FlashcardDemo />
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
             <div className="order-1 md:order-2">
-              <Badge variant="outline" className="mb-4">Interactive Learning</Badge>
+              <Badge variant="outline" className="mb-4">Interactive Learning Tools</Badge>
               <h2 className="text-3xl md:text-4xl font-bold text-zinc-900 mb-4">Ditch the hour-long videos.</h2>
               <p className="text-lg text-zinc-600 mb-6">
-                Break complex topics into 5-minute interactive lessons. Employees learn by doing, not just watching.
+                Break complex topics into 5-minute interactive lessons. Employees learn by doing, with Multiple Choice, Matching Games, and Flashcards.
               </p>
               <ul className="space-y-3">
                 {['Drag-and-drop exercises', 'Immediate feedback loops', 'Bite-sized modules'].map((item) => (

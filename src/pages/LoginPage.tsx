@@ -9,9 +9,9 @@ import { api } from '@/lib/api';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('learner@example.com');
-  const [password, setPassword] = useState('password');
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [email, setEmail] = useState('admin@performa.com');
+  const [password, setPassword] = useState('admin');
+  const [isAdmin, setIsAdmin] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -22,8 +22,8 @@ const LoginPage = () => {
 
     try {
       const formData = new URLSearchParams()
-      // Let the user strictly provide email/password or use the defaults on empty
-      const loginEmail = email || (isAdmin ? 'admin@performova.com' : 'learner@performova.com');
+      // Use provide email/password or use the defaults on empty
+      const loginEmail = email || (isAdmin ? 'admin@performa.com' : 'learner@performa.com');
       const loginPassword = password || 'admin';
 
       formData.append('username', loginEmail)
@@ -37,10 +37,17 @@ const LoginPage = () => {
 
       if (res.ok) {
         const data = await res.json()
+        
+        if (isAdmin && data.role === "Learner") {
+          setError("Access denied. This login is restricted to Managers and Admins.");
+          setLoading(false);
+          return;
+        }
+
         localStorage.setItem("access_token", data.access_token)
         localStorage.setItem("user_role", data.role)
 
-        if (data.role === "Admin" || isAdmin) {
+        if (data.role === "Admin" || data.role === "Manager") {
           navigate('/admin');
         } else {
           navigate('/learner');
@@ -77,7 +84,7 @@ const LoginPage = () => {
             <p className="text-zinc-600">Continue your learning journey</p>
           </div>
 
-          <Tabs defaultValue="learner" className="w-full" onValueChange={(value) => setIsAdmin(value === 'admin')}>
+          <Tabs defaultValue="admin" className="w-full" onValueChange={(value) => setIsAdmin(value === 'admin')}>
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="learner" data-testid="learner-tab">Learner</TabsTrigger>
               <TabsTrigger value="admin" data-testid="admin-tab">Admin</TabsTrigger>

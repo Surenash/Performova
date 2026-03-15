@@ -1,0 +1,786 @@
+INFO:     Started server process [31927]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [31927]
+/opt/local/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+INFO:     Started server process [31954]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:51011 - "GET /admin/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.UserSession'>: SELECT user_sessions.id, user_sessions.user_id, user_sessions.login_at, user_sessions.logout_at, user_sessions.ip_address, user_sessions.device_info 
+FROM user_sessions
+INFO:     127.0.0.1:51013 - "GET /admin/UserSession/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.UserProgress'>: SELECT user_progress.id, user_progress.user_id, user_progress.course_id, user_progress.lesson_id, user_progress.is_completed, user_progress.completed_at 
+FROM user_progress
+INFO:     127.0.0.1:51013 - "GET /admin/UserProgress/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.User'>: SELECT users.id, users.organization_id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.role, users.department_id, users.team_id, users.streak_days, users.xp_points 
+FROM users
+INFO:     127.0.0.1:51013 - "GET /admin/User/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.LearningPath'>: SELECT learning_paths.id, learning_paths.organization_id, learning_paths.title, learning_paths.description, learning_paths.is_published, learning_paths.created_at 
+FROM learning_paths
+INFO:     127.0.0.1:51013 - "GET /admin/LearningPath/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.ActivityLog'>: SELECT activity_logs.id, activity_logs.user_id, activity_logs.activity_type, activity_logs.xp_awarded, activity_logs.timestamp 
+FROM activity_logs
+INFO:     127.0.0.1:51013 - "GET /admin/ActivityLog/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Badge'>: SELECT badges.id, badges.name, badges.description, badges.icon_url, badges.criteria_type, badges.criteria_value 
+FROM badges
+INFO:     127.0.0.1:51013 - "GET /admin/Badge/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Certificate'>: SELECT certificates.id, certificates.user_id, certificates.course_id, certificates.issue_date, certificates.expiration_date, certificates.certificate_url 
+FROM certificates
+INFO:     127.0.0.1:51019 - "GET /admin/Certificate/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.ChatMessage'>: SELECT chat_messages.id, chat_messages.user_id, chat_messages.message, chat_messages.is_bot, chat_messages.created_at 
+FROM chat_messages
+INFO:     127.0.0.1:51019 - "GET /admin/ChatMessage/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Certificate'>: SELECT certificates.id, certificates.user_id, certificates.course_id, certificates.issue_date, certificates.expiration_date, certificates.certificate_url 
+FROM certificates
+INFO:     127.0.0.1:51019 - "GET /admin/Certificate/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51023 - "GET /admin/Certificate/1 HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.ChatMessage'>: SELECT chat_messages.id, chat_messages.user_id, chat_messages.message, chat_messages.is_bot, chat_messages.created_at 
+FROM chat_messages
+INFO:     127.0.0.1:51025 - "GET /admin/ChatMessage/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Badge'>: SELECT badges.id, badges.name, badges.description, badges.icon_url, badges.criteria_type, badges.criteria_value 
+FROM badges
+INFO:     127.0.0.1:51025 - "GET /admin/Badge/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Certificate'>: SELECT certificates.id, certificates.user_id, certificates.course_id, certificates.issue_date, certificates.expiration_date, certificates.certificate_url 
+FROM certificates
+INFO:     127.0.0.1:51025 - "GET /admin/Certificate/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Course'>: SELECT courses.id, courses.organization_id, courses.title, courses.description, courses.created_at, courses.is_published, courses.category, courses.time, courses.format, courses.difficulty, courses.image, courses.color 
+FROM courses
+INFO:     127.0.0.1:51025 - "GET /admin/Course/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.CourseAssignment'>: SELECT course_assignments.id, course_assignments.user_id, course_assignments.team_id, course_assignments.course_id, course_assignments.learning_path_id, course_assignments.assigned_date, course_assignments.due_date, course_assignments.is_mandatory, course_assignments.status 
+FROM course_assignments
+INFO:     127.0.0.1:51025 - "GET /admin/CourseAssignment/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.CourseFeedback'>: SELECT course_feedback.id, course_feedback.user_id, course_feedback.course_id, course_feedback.rating, course_feedback.comments, course_feedback.submitted_at 
+FROM course_feedback
+INFO:     127.0.0.1:51025 - "GET /admin/CourseFeedback/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.CoursePrerequisite'>: SELECT course_prerequisites.course_id, course_prerequisites.required_course_id 
+FROM course_prerequisites
+INFO:     127.0.0.1:51025 - "GET /admin/CoursePrerequisite/ HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/security.py", line 188, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 87, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 130, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 116, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 670, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 324, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/router.py", line 555, in list_view
+    return templates.TemplateResponse("pages/list.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 210, in TemplateResponse
+    return _TemplateResponse(
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 41, in __init__
+    content = template.render(context)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 3, in top-level template code
+    {% import "components/inputs.html" as inputs %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/layouts/base.html", line 230, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 221, in block 'content'
+    <a href="{{ url_for('admin:edit', model=model_config.name, id=row[id_field]) }}"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 127, in url_for
+    return request.url_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/requests.py", line 196, in url_for
+    url_path = url_path_provider.url_path_for(name, **path_params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in url_path_for
+    return route.url_path_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 277, in url_path_for
+    path, remaining_params = replace_params(self.path_format, self.param_convertors, path_params)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 114, in replace_params
+    value = convertor.to_string(value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/convertors.py", line 29, in to_string
+    assert value, "Must not be empty"
+           ^^^^^
+AssertionError: Must not be empty
+DEBUG: CRUD list query for <class 'backend.models.CourseFeedback'>: SELECT course_feedback.id, course_feedback.user_id, course_feedback.course_id, course_feedback.rating, course_feedback.comments, course_feedback.submitted_at 
+FROM course_feedback
+INFO:     127.0.0.1:51027 - "GET /admin/CourseFeedback/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.CourseAssignment'>: SELECT course_assignments.id, course_assignments.user_id, course_assignments.team_id, course_assignments.course_id, course_assignments.learning_path_id, course_assignments.assigned_date, course_assignments.due_date, course_assignments.is_mandatory, course_assignments.status 
+FROM course_assignments
+INFO:     127.0.0.1:51027 - "GET /admin/CourseAssignment/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Course'>: SELECT courses.id, courses.organization_id, courses.title, courses.description, courses.created_at, courses.is_published, courses.category, courses.time, courses.format, courses.difficulty, courses.image, courses.color 
+FROM courses
+INFO:     127.0.0.1:51027 - "GET /admin/Course/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.ChatMessage'>: SELECT chat_messages.id, chat_messages.user_id, chat_messages.message, chat_messages.is_bot, chat_messages.created_at 
+FROM chat_messages
+INFO:     127.0.0.1:51027 - "GET /admin/ChatMessage/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Certificate'>: SELECT certificates.id, certificates.user_id, certificates.course_id, certificates.issue_date, certificates.expiration_date, certificates.certificate_url 
+FROM certificates
+INFO:     127.0.0.1:51027 - "GET /admin/Certificate/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Badge'>: SELECT badges.id, badges.name, badges.description, badges.icon_url, badges.criteria_type, badges.criteria_value 
+FROM badges
+INFO:     127.0.0.1:51027 - "GET /admin/Badge/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.ActivityLog'>: SELECT activity_logs.id, activity_logs.user_id, activity_logs.activity_type, activity_logs.xp_awarded, activity_logs.timestamp 
+FROM activity_logs
+INFO:     127.0.0.1:51027 - "GET /admin/ActivityLog/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.CourseAssignment'>: SELECT course_assignments.id, course_assignments.user_id, course_assignments.team_id, course_assignments.course_id, course_assignments.learning_path_id, course_assignments.assigned_date, course_assignments.due_date, course_assignments.is_mandatory, course_assignments.status 
+FROM course_assignments
+INFO:     127.0.0.1:51027 - "GET /admin/CourseAssignment/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.CourseFeedback'>: SELECT course_feedback.id, course_feedback.user_id, course_feedback.course_id, course_feedback.rating, course_feedback.comments, course_feedback.submitted_at 
+FROM course_feedback
+INFO:     127.0.0.1:51027 - "GET /admin/CourseFeedback/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.CoursePrerequisite'>: SELECT course_prerequisites.course_id, course_prerequisites.required_course_id 
+FROM course_prerequisites
+INFO:     127.0.0.1:51027 - "GET /admin/CoursePrerequisite/ HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/security.py", line 188, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 87, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 130, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 116, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 670, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 324, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/router.py", line 555, in list_view
+    return templates.TemplateResponse("pages/list.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 210, in TemplateResponse
+    return _TemplateResponse(
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 41, in __init__
+    content = template.render(context)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 3, in top-level template code
+    {% import "components/inputs.html" as inputs %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/layouts/base.html", line 230, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 221, in block 'content'
+    <a href="{{ url_for('admin:edit', model=model_config.name, id=row[id_field]) }}"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 127, in url_for
+    return request.url_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/requests.py", line 196, in url_for
+    url_path = url_path_provider.url_path_for(name, **path_params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in url_path_for
+    return route.url_path_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 277, in url_path_for
+    path, remaining_params = replace_params(self.path_format, self.param_convertors, path_params)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 114, in replace_params
+    value = convertor.to_string(value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/convertors.py", line 29, in to_string
+    assert value, "Must not be empty"
+           ^^^^^
+AssertionError: Must not be empty
+DEBUG: CRUD list query for <class 'backend.models.DemoConfig'>: SELECT demo_configs.id, demo_configs.demo_type, demo_configs.config_json 
+FROM demo_configs
+INFO:     127.0.0.1:51029 - "GET /admin/DemoConfig/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Department'>: SELECT departments.id, departments.organization_id, departments.name, departments.description 
+FROM departments
+INFO:     127.0.0.1:51029 - "GET /admin/Department/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.LearningPath'>: SELECT learning_paths.id, learning_paths.organization_id, learning_paths.title, learning_paths.description, learning_paths.is_published, learning_paths.created_at 
+FROM learning_paths
+INFO:     127.0.0.1:51029 - "GET /admin/LearningPath/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Lesson'>: SELECT lessons.id, lessons.module_id, lessons.title, lessons.type, lessons.content, lessons.video_url, lessons."order", lessons.estimated_time 
+FROM lessons
+INFO:     127.0.0.1:51029 - "GET /admin/Lesson/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Module'>: SELECT modules.id, modules.course_id, modules.title, modules.description, modules."order" 
+FROM modules
+INFO:     127.0.0.1:51029 - "GET /admin/Module/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Organization'>: SELECT organizations.id, organizations.name, organizations.domain, organizations.created_at 
+FROM organizations
+INFO:     127.0.0.1:51029 - "GET /admin/Organization/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.PathCourse'>: SELECT path_courses.path_id, path_courses.course_id, path_courses."order" 
+FROM path_courses
+INFO:     127.0.0.1:51029 - "GET /admin/PathCourse/ HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/security.py", line 188, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 87, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 130, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 116, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 670, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 324, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/router.py", line 555, in list_view
+    return templates.TemplateResponse("pages/list.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 210, in TemplateResponse
+    return _TemplateResponse(
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 41, in __init__
+    content = template.render(context)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 3, in top-level template code
+    {% import "components/inputs.html" as inputs %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/layouts/base.html", line 230, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 221, in block 'content'
+    <a href="{{ url_for('admin:edit', model=model_config.name, id=row[id_field]) }}"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 127, in url_for
+    return request.url_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/requests.py", line 196, in url_for
+    url_path = url_path_provider.url_path_for(name, **path_params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in url_path_for
+    return route.url_path_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 277, in url_path_for
+    path, remaining_params = replace_params(self.path_format, self.param_convertors, path_params)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 114, in replace_params
+    value = convertor.to_string(value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/convertors.py", line 29, in to_string
+    assert value, "Must not be empty"
+           ^^^^^
+AssertionError: Must not be empty
+DEBUG: CRUD list query for <class 'backend.models.Question'>: SELECT questions.id, questions.lesson_id, questions.type, questions.question_text, questions.config, questions."order" 
+FROM questions
+INFO:     127.0.0.1:51035 - "GET /admin/Question/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.QuestionResponse'>: SELECT question_responses.id, question_responses.attempt_id, question_responses.question_id, question_responses.user_id, question_responses.is_correct, question_responses.response_time_seconds, question_responses.selected_option 
+FROM question_responses
+INFO:     127.0.0.1:51035 - "GET /admin/QuestionResponse/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.QuizAttempt'>: SELECT quiz_attempts.id, quiz_attempts.user_id, quiz_attempts.lesson_id, quiz_attempts.score, quiz_attempts.max_score, quiz_attempts.passed, quiz_attempts.attempt_number, quiz_attempts.started_at, quiz_attempts.completed_at 
+FROM quiz_attempts
+INFO:     127.0.0.1:51035 - "GET /admin/QuizAttempt/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.Team'>: SELECT teams.id, teams.organization_id, teams.department_id, teams.name, teams.description 
+FROM teams
+INFO:     127.0.0.1:51035 - "GET /admin/Team/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.User'>: SELECT users.id, users.organization_id, users.email, users.hashed_password, users.full_name, users.is_active, users.is_admin, users.role, users.department_id, users.team_id, users.streak_days, users.xp_points 
+FROM users
+INFO:     127.0.0.1:51035 - "GET /admin/User/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.UserBadge'>: SELECT user_badges.id, user_badges.user_id, user_badges.badge_id, user_badges.awarded_at 
+FROM user_badges
+INFO:     127.0.0.1:51035 - "GET /admin/UserBadge/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.UserProgress'>: SELECT user_progress.id, user_progress.user_id, user_progress.course_id, user_progress.lesson_id, user_progress.is_completed, user_progress.completed_at 
+FROM user_progress
+INFO:     127.0.0.1:51035 - "GET /admin/UserProgress/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.UserSession'>: SELECT user_sessions.id, user_sessions.user_id, user_sessions.login_at, user_sessions.logout_at, user_sessions.ip_address, user_sessions.device_info 
+FROM user_sessions
+INFO:     127.0.0.1:51035 - "GET /admin/UserSession/ HTTP/1.1" 200 OK
+DEBUG: CRUD list query for <class 'backend.models.PathCourse'>: SELECT path_courses.path_id, path_courses.course_id, path_courses."order" 
+FROM path_courses
+INFO:     127.0.0.1:51035 - "GET /admin/PathCourse/ HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/security.py", line 188, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 87, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 130, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 116, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 670, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 324, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/router.py", line 555, in list_view
+    return templates.TemplateResponse("pages/list.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 210, in TemplateResponse
+    return _TemplateResponse(
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 41, in __init__
+    content = template.render(context)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 3, in top-level template code
+    {% import "components/inputs.html" as inputs %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/layouts/base.html", line 230, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 221, in block 'content'
+    <a href="{{ url_for('admin:edit', model=model_config.name, id=row[id_field]) }}"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 127, in url_for
+    return request.url_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/requests.py", line 196, in url_for
+    url_path = url_path_provider.url_path_for(name, **path_params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in url_path_for
+    return route.url_path_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 277, in url_path_for
+    path, remaining_params = replace_params(self.path_format, self.param_convertors, path_params)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 114, in replace_params
+    value = convertor.to_string(value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/convertors.py", line 29, in to_string
+    assert value, "Must not be empty"
+           ^^^^^
+AssertionError: Must not be empty
+INFO:     127.0.0.1:51056 - "HEAD /admin/CoursePrerequisite/ HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51058 - "HEAD /admin/PathCourse/ HTTP/1.1" 405 Method Not Allowed
+DEBUG: CRUD list query for <class 'backend.models.CoursePrerequisite'>: SELECT course_prerequisites.course_id, course_prerequisites.required_course_id 
+FROM course_prerequisites
+INFO:     127.0.0.1:51068 - "GET /admin/CoursePrerequisite/ HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/security.py", line 188, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 87, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 130, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 116, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 670, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 324, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/router.py", line 555, in list_view
+    return templates.TemplateResponse("pages/list.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 210, in TemplateResponse
+    return _TemplateResponse(
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 41, in __init__
+    content = template.render(context)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 3, in top-level template code
+    {% import "components/inputs.html" as inputs %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/layouts/base.html", line 230, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 221, in block 'content'
+    <a href="{{ url_for('admin:edit', model=model_config.name, id=row[id_field]) }}"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 127, in url_for
+    return request.url_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/requests.py", line 196, in url_for
+    url_path = url_path_provider.url_path_for(name, **path_params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in url_path_for
+    return route.url_path_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 277, in url_path_for
+    path, remaining_params = replace_params(self.path_format, self.param_convertors, path_params)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 114, in replace_params
+    value = convertor.to_string(value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/convertors.py", line 29, in to_string
+    assert value, "Must not be empty"
+           ^^^^^
+AssertionError: Must not be empty
+DEBUG: CRUD list query for <class 'backend.models.PathCourse'>: SELECT path_courses.path_id, path_courses.course_id, path_courses."order" 
+FROM path_courses
+INFO:     127.0.0.1:51070 - "GET /admin/PathCourse/ HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/security.py", line 188, in dispatch
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 87, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 130, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 116, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 670, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi/routing.py", line 324, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/core/router.py", line 555, in list_view
+    return templates.TemplateResponse("pages/list.html", context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 210, in TemplateResponse
+    return _TemplateResponse(
+           ^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 41, in __init__
+    content = template.render(context)
+              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 3, in top-level template code
+    {% import "components/inputs.html" as inputs %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/layouts/base.html", line 230, in top-level template code
+    {% block content %}{% endblock %}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/fastapi_matrix_admin/templates/pages/list.html", line 221, in block 'content'
+    <a href="{{ url_for('admin:edit', model=model_config.name, id=row[id_field]) }}"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/templating.py", line 127, in url_for
+    return request.url_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/requests.py", line 196, in url_for
+    url_path = url_path_provider.url_path_for(name, **path_params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 660, in url_path_for
+    return route.url_path_for(name, **path_params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 277, in url_path_for
+    path, remaining_params = replace_params(self.path_format, self.param_convertors, path_params)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/routing.py", line 114, in replace_params
+    value = convertor.to_string(value)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mac/Desktop/Performova LMS/Performova-combined/venv/lib/python3.12/site-packages/starlette/convertors.py", line 29, in to_string
+    assert value, "Must not be empty"
+           ^^^^^
+AssertionError: Must not be empty
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [31954]
+/opt/local/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/multiprocessing/resource_tracker.py:279: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
