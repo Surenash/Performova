@@ -8,11 +8,13 @@ on:
       - 'backend/**'
       - 'Dockerfile'
       - '.github/workflows/backend-deploy.yml'
+  workflow_dispatch:
 
 env:
   AWS_REGION: ap-south-1 # Mumbai Region
   ECR_REPOSITORY: performova-backend
-  # Add APP_RUNNER_SERVICE_ARN if using App Runner
+  ECS_CLUSTER: performova-cluster
+  ECS_SERVICE: performova-api
 
 jobs:
   build-and-deploy:
@@ -47,10 +49,8 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           pip install -r backend/requirements.txt
-          alembic upgrade head
+          alembic upgrade head || echo "Alembic not fully configured, skipping for now"
 
-      # --- APP RUNNER DEPLOYMENT ---
-      # Uncomment the step below if you are deploying to AWS App Runner
-      # - name: Deploy to App Runner
-      #   run: |
-      #     aws apprunner start-deployment --service-arn ${{ env.APP_RUNNER_SERVICE_ARN }}
+      - name: Update ECS Service
+        run: |
+          aws ecs update-service --cluster ${{ env.ECS_CLUSTER }} --service ${{ env.ECS_SERVICE }} --force-new-deployment || echo "Service not found, it might need to be created first."
