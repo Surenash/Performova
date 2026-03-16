@@ -15,7 +15,6 @@ from backend.ai_chat import router as ai_router
 from backend.course_generation import router as course_router
 from backend.routers.data_router import router as data_router
 from backend.routers.analytics_router import router as analytics_router
-from backend.video_processing import generate_presigned_url
 from datetime import timedelta
 import asyncio
 import os

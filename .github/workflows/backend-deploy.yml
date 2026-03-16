@@ -42,6 +42,13 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+      - name: Run Database Migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          pip install -r backend/requirements.txt
+          alembic upgrade head
+
       # --- APP RUNNER DEPLOYMENT ---
       # Uncomment the step below if you are deploying to AWS App Runner
       # - name: Deploy to App Runner
