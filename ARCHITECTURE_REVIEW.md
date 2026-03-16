@@ -2,104 +2,76 @@
 
 ## 1. Executive Summary
 
-This document provides a holistic review of the Performova Learning Management System (LMS) deployment architecture, currently outlined in `DEPLOYMENT.md`. The primary goal of this review is to evaluate the proposed AWS infrastructure against the application's functional requirements—specifically, its cost efficiency, scalability, and performance.
+This document provides a holistic review of the Performova Learning Management System (LMS) deployment architecture. The system is designed to be **serverless** (pay-only-for-what-you-use), **asynchronous** (it won't crash on heavy video uploads), and **cost-optimized** for the AWS Mumbai (`ap-south-1`) region.
 
-The most critical finding is that running the compute-intensive media processing tasks (video transcoding via FFmpeg and audio transcription via Faster-Whisper) directly within the main FastAPI backend on AWS App Runner or AWS Fargate presents significant risks regarding cost overruns, request timeouts, and inconsistent performance.
-
-This review recommends an **event-driven, decoupled architecture** that separates the fast API layer from the slow, resource-intensive media processing layer to achieve the optimal balance of cost efficiency and performance.
+The core of this architecture is separating the fast, user-facing API from the heavy, long-running AI generation and media processing workflows. We accomplish this by splitting the system into an **Active API** and a serverless **Agentic Factory**.
 
 ---
 
-## 2. Current Architecture Evaluation
+## 2. High-Level Architecture Overview
 
-### 2.1 Proposed Infrastructure (Per `DEPLOYMENT.md`)
-*   **Frontend:** AWS Amplify (React + Vite)
-*   **Backend:** AWS App Runner or Amazon ECS Fargate (FastAPI)
-*   **Database:** Amazon RDS for PostgreSQL
-*   **Storage:** Amazon S3
+### Layer A: The User Interface (Frontend)
+*   **Hosting:** AWS Amplify
+*   **Tech:** React (Vite) + Tailwind CSS
+*   **Upload Logic:** Uses **S3 Presigned URLs**. The browser uploads video/PDF files directly to S3, bypassing the backend entirely. This prevents API timeouts, connection drops, and saves significantly on backend bandwidth and memory costs.
 
-### 2.2 Functional Requirements (Per Codebase)
-*   The backend handles standard API requests (CRUD operations for users, courses, progress).
-*   The backend also performs synchronous, compute-intensive tasks:
-    *   **Video Transcoding:** Using `ffmpeg` to transcode uploaded videos (`backend/video_processing.py`).
-    *   **Audio Transcription:** Using `faster-whisper` (a local ML model) to transcribe audio into text for AI course generation (`backend/video_processing.py`).
-    *   **AI Generation:** Interacting with Google Gemini API for curriculum generation.
+### Layer B: The Security & Control Plane (Backend)
+*   **Hosting:** AWS App Runner (Graviton / ARM64 instances for ~20% cost savings)
+*   **Tech:** FastAPI + existing JWT Authentication
+*   **Role:** Acts as the gatekeeper. It validates users, handles standard CRUD operations (courses, progress), generates S3 upload links, and "pings" the Agentic Factory to start asynchronous AI work.
 
----
-
-## 3. Findings & Architectural Risks
-
-### 3.1 The "Fat Container" Problem (App Runner/Fargate)
-Deploying the entire FastAPI application—including the Whisper ML model and FFmpeg—into a single container running on AWS App Runner or Fargate is an anti-pattern for this use case.
-
-**Risks:**
-*   **High Compute Costs:** Faster-Whisper requires significant CPU and memory to run efficiently. If the entire API runs on a large Fargate/App Runner instance to accommodate occasional video uploads, you are paying for unused high-compute capacity 99% of the time when the API is just serving lightweight CRUD requests.
-*   **Request Timeouts:** Video transcoding and transcription are long-running processes (often taking minutes). AWS App Runner and API Gateway (often used with Fargate) have strict timeout limits (e.g., App Runner defaults to a short timeout, maxing out at a few minutes). Processing large videos synchronously in the HTTP request cycle (`/admin/generate-course`) will inevitably lead to timeouts and 504 Gateway errors.
-*   **Scaling Inefficiency:** If there is a spike in video uploads, the entire API scales up, creating unnecessary database connections and overhead. Conversely, if there's a spike in standard API traffic, you are launching massive, expensive containers just to serve JSON.
-
-### 3.2 Database Strategy (Amazon RDS PostgreSQL)
-**Assessment:** Appropriate.
-Amazon RDS for PostgreSQL is a solid, industry-standard choice for the transactional data (users, courses, progress). It balances performance with manageability. However, to optimize costs, a smaller instance type (e.g., `db.t4g.micro` or `small` powered by ARM Graviton processors) should be used initially, scaling up only when necessary.
-
-### 3.3 Frontend Hosting (AWS Amplify)
-**Assessment:** Appropriate.
-AWS Amplify Hosting is highly cost-effective (often pennies per month for moderate traffic) and provides excellent performance globally via CloudFront.
+### Layer C: The Data Store (Database)
+*   **Service:** Amazon RDS for PostgreSQL (`db.t4g.micro` burstable Graviton instances for cost efficiency).
+*   **Logic:**
+    *   Standard relational tables for Users, Courses, Progress, and Grades.
+    *   **JSONB Columns:** Extensively utilized to store the dynamic configurations for the 10 types of interactive questions (MCQ, Drag-Drop, etc.). PostgreSQL handles this unstructured AI-generated data natively while maintaining high speed and indexability.
+*   **Migration Strategy:** Uses `alembic upgrade head` during deployment. (Warning: `init_db.py` must not be used in production as it drops and recreates tables).
 
 ---
 
-## 4. Recommendations for Compute-Intensive Workloads
+## 3. Layer D: The Agentic Factory (The AI Brain)
 
-To prioritize **cost efficiency** while maintaining **acceptable performance**, the architecture must decouple the fast, lightweight API from the slow, heavy media processing.
+When a file is uploaded to S3, an S3 Event Notification triggers a powerful, asynchronous **Multi-Agent Workflow** orchestrated by AWS Step Functions.
 
-### 4.1 Decoupled, Event-Driven Architecture (Recommended)
+### 3.1 Orchestrator (AWS Step Functions)
+Manages the sequence of events and the state machine. If a process fails (e.g., an API timeout or an invalid JSON response from the LLM), Step Functions automatically handles retries and fallback logic, ensuring robust course generation without blocking the main FastAPI backend.
 
-1.  **Lightweight API Layer (App Runner / Fargate):**
-    *   The FastAPI application should be stripped of the heavy Whisper model and FFmpeg dependencies.
-    *   It should run on small, cheap App Runner or Fargate instances (e.g., 1 vCPU, 2GB RAM).
-    *   *Workflow:* When a user uploads a video, the API generates a **Presigned S3 Post URL**. The frontend uploads the video *directly* to S3, bypassing the API entirely.
+### 3.2 The Agents (AWS Lambda + Google GenAI)
 
-2.  **Asynchronous Message Queue & Worker (SQS/Celery + EC2):**
-    *   Configure the S3 bucket to trigger an event notification to an Amazon SQS queue whenever a new video is uploaded, or have the API push a task to a Celery queue (using Redis/SQS as a broker).
+1.  **Architect Agent (Lambda + Gemini 1.5 Pro):**
+    *   Reads all summaries and parsed PDFs.
+    *   Determines the overarching curriculum flow, module structure, and learning objectives.
 
-3.  **Dedicated Worker Layer (EC2 + Celery):**
-    *   Instead of expensive, always-on Fargate tasks for processing, run a dedicated worker (e.g., Celery) on an Amazon EC2 instance to pull messages from the queue.
-    *   **Cost Optimization:** Use **EC2 Spot Instances** if possible. Spot instances offer up to a 90% discount compared to On-Demand pricing.
-    *   **Instance Sizing (Graviton):** Use instances optimized for compute and memory, specifically AWS Graviton (ARM64) instances (e.g., `c6g.large` or `m6g.large`). They are significantly cheaper and more performant than standard x86 instances.
+2.  **Designer Agent (Lambda + Gemini 1.5 Flash):**
+    *   Uses **Context Caching** to read large volumes of source material (e.g., 100 PDFs) extremely cost-effectively.
+    *   Generates the actual lesson content and the 10 interactive question types (Sequencing, Drag-Drop, Fill-in-the-blank) in strict JSON format based on the Architect's blueprint.
 
-### 4.2 Alternative: Fully Managed Services (MediaConvert & Transcribe)
+3.  **Verifier Agent (Lambda + Gemini 1.5 Flash):**
+    *   Acts as a quality assurance step.
+    *   Fact-checks the Designer Agent's output against the original source material to prevent "hallucinations" and ensure educational accuracy before saving to the RDS database.
 
-Instead of managing EC2 workers running FFmpeg and Whisper, you could use AWS managed services.
-
-*   **AWS Elemental MediaConvert:** For transcoding videos.
-*   **Amazon Transcribe:** For extracting text from audio.
-
-**Cost vs. Performance Tradeoff:**
-*   *Pros:* Zero infrastructure to manage; highly reliable; scales infinitely.
-*   *Cons:* **Higher variable costs**. Amazon Transcribe charges per minute of audio processed ($0.024/minute). MediaConvert charges per minute of video transcoded. For an LMS with high video volume, this can quickly become much more expensive than running an EC2 Spot instance.
-*   *Conclusion:* Given the priority on cost optimization, the EC2 Worker/Spot instance approach running open-source tools (FFmpeg/Whisper) is the recommended path over fully managed ML/Media services.
+### 3.3 Media Processing Worker (AWS Batch / Fargate Task)
+*Note on limitations:* AWS Lambda has a 15-minute execution limit and limited compute, which makes running local ML models like `faster-whisper` or video transcoding via `ffmpeg` difficult and expensive.
+*   *Workflow:* Step Functions triggers a specific, short-lived container (AWS Fargate Task or AWS Batch) specifically for running `faster-whisper` and `ffmpeg`. Once the text is extracted and the video transcoded, the task completes, and Step Functions passes the extracted text to the Architect Agent Lambda.
 
 ---
 
-## 5. Summary of Recommended AWS Architecture
+## 4. Tech Stack Summary
 
-| Component | Current Proposal (DEPLOYMENT.md) | Recommended Architecture | Reason for Change |
-| :--- | :--- | :--- | :--- |
-| **Frontend** | AWS Amplify | **AWS Amplify** | Keep: Cost-effective, CDN-backed. |
-| **API Backend** | AWS App Runner (Fat Container) | **AWS App Runner (Slim Container)** | Change: Remove media processing libraries to allow running on the smallest, cheapest instance size. |
-| **Database** | RDS PostgreSQL | **RDS PostgreSQL (Graviton)** | Keep: Standard. Use `db.t4g` (ARM64) instances for a ~20% cost savings and better performance. |
-| **Media Upload** | Via FastAPI to S3 | **Direct to S3 via Presigned URL** | Change: Prevents tying up API resources handling large file streams. |
-| **Media Processing** | Synchronous in API | **Async via SQS/Celery + EC2 Worker** | Change: Prevents timeouts; massively reduces compute costs by utilizing cheap instances only when needed. |
+| Component | Technology | AWS Service |
+| :--- | :--- | :--- |
+| **Frontend** | React / Vite | AWS Amplify |
+| **Backend API** | FastAPI (JWT Auth) | AWS App Runner (Graviton) |
+| **Database** | PostgreSQL | Amazon RDS (`db.t4g`) |
+| **File Storage** | S3 | Amazon S3 (Standard + IA) |
+| **AI Processing** | Gemini 1.5 Pro & Flash | Google AI SDK (via Lambda) |
+| **Async Tasks** | SQS + Step Functions | AWS Serverless Tools |
+| **Media Processing** | FFmpeg & Faster-Whisper | AWS Fargate Task (Triggered by Step Functions) |
 
-## 6. Database Migrations & Deployment
+## 5. Required Code Changes for Implementation
 
-**Assessment:** The current codebase uses `backend/init_db.py` to create tables, which often drops and recreates them. This is a massive risk for production.
-**Recommendation:** Implement a production-grade migration strategy using **Alembic**. During deployment (e.g., in the App Runner setup or a CI/CD pipeline), Alembic should run `alembic upgrade head` against the RDS instance.
-
-## 7. Required Code Changes for Implementation
-
-To implement the recommended architecture, the following changes to the codebase would be required (note: not implemented in this review):
-
-1.  **Refactor `course_generation.py`:** Remove the synchronous call to `process_video_securely`. Instead, the endpoint should accept an S3 key (after the frontend uploads directly) and publish a message to SQS.
-2.  **Create a Worker Application:** Create a new Python script (e.g., `worker.py`) that polls SQS, downloads the video from S3, runs FFmpeg and Faster-Whisper, and then updates the RDS database (or calls an internal API endpoint) with the results.
-3.  **Update `requirements.txt`:** Remove `faster-whisper` and `ffmpeg-python` from the main API requirements to shrink the Docker image size. Add them to a separate `worker-requirements.txt`.
-4.  **Frontend Updates:** Update the React frontend to support direct-to-S3 uploads using presigned URLs and implement a polling or WebSocket mechanism to notify the user when the async course generation is complete.
+To fully implement this Serverless Agentic Factory, the following codebase changes are required:
+1.  **Frontend Updates:** Implement Direct-to-S3 uploads using Presigned URLs generated by FastAPI. Add a polling or WebSocket mechanism to notify users when the Step Functions workflow completes.
+2.  **Refactor `course_generation.py`:** Remove the synchronous Gemini calls and video processing. The endpoint should now solely generate an S3 upload link and (optionally) start the Step Functions execution execution via `boto3`.
+3.  **Create Lambda Functions:** Extract the prompt logic into separate Node.js or Python Lambda functions representing the Architect, Designer, and Verifier agents.
+4.  **Isolate Media Dependencies:** Remove `faster-whisper` and `ffmpeg-python` from the main FastAPI `requirements.txt` to keep the App Runner container small and fast. Create a separate Dockerfile for the Media Processing Fargate Task.

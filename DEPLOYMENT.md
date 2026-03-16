@@ -3,9 +3,11 @@
 This guide outlines the steps to deploy the Performova LMS to AWS using a modern, scalable architecture.
 
 ## Architecture Overview
-- **Frontend**: AWS Amplify (React + Vite)
-- **Backend**: AWS App Runner or Amazon ECS Fargate (FastAPI via Docker)
-- **Database**: Amazon RDS for PostgreSQL
+This system is split into two core halves: an **Active API** and an **Agentic Factory**.
+- **Frontend**: AWS Amplify (React + Vite) with Direct-to-S3 uploads (Presigned URLs).
+- **Active API (Backend)**: AWS App Runner (FastAPI on ARM64 Graviton instances).
+- **Database**: Amazon RDS for PostgreSQL (using JSONB for dynamic AI data).
+- **Agentic Factory**: AWS Step Functions orchestrating AWS Lambda (Gemini 1.5 Pro/Flash) and Fargate tasks for asynchronous video/AI processing.
 
 ## Prerequisites
 1. An AWS Account with Administrator access.
@@ -22,11 +24,11 @@ This guide outlines the steps to deploy the Performova LMS to AWS using a modern
 4. Choose **Free tier** or **Production** depending on your needs.
 5. Under **Instance configuration**, select **Burstable classes** and choose **db.t4g** (e.g., `db.t4g.micro`). AWS Graviton (ARM64) instances are significantly cheaper and more performant than standard x86 instances.
 6. Set the **DB instance identifier**, **Master username**, and **Master password**.
-6. Ensure **Public access** is *No* (unless testing, then set your Security Group rules to allow your IP).
-7. Under **Additional configuration**, specify an initial database name (e.g., `performova`).
-8. Create the database. 
-9. Once created, note the **Endpoint endpoint** URL.
-10. Construct your `DATABASE_URL`:
+7. Ensure **Public access** is *No* (unless testing, then set your Security Group rules to allow your IP).
+8. Under **Additional configuration**, specify an initial database name (e.g., `performova`).
+9. Create the database.
+10. Once created, note the **Endpoint endpoint** URL.
+11. Construct your `DATABASE_URL`:
     `postgresql://<username>:<password>@<endpoint>:5432/<dbname>`
 
 ---
@@ -66,7 +68,19 @@ AWS App Runner is the easiest way to deploy a containerized API without managing
 
 ---
 
-## 3. Frontend Deployment (AWS Amplify)
+## 3. Agentic Factory Deployment (AWS Step Functions & Lambda)
+
+The asynchronous video processing and AI generation logic (Architect, Designer, Verifier agents) should be deployed as a separate serverless workflow.
+
+1. **Create an S3 Bucket** for frontend uploads. Configure it to send an Event Notification to AWS SQS or EventBridge.
+2. **Deploy Lambda Functions** for the Gemini 1.5 Pro and Flash agents.
+3. **Deploy a Fargate Task** specifically for running the heavy `faster-whisper` and `ffmpeg` libraries.
+4. **Create an AWS Step Functions State Machine** to orchestrate:
+   - File Upload (S3) -> Fargate Media Processing -> Architect Agent (Lambda) -> Designer Agent (Lambda) -> Verifier Agent (Lambda) -> Save to RDS.
+
+---
+
+## 4. Frontend Deployment (AWS Amplify)
 
 AWS Amplify automatically detects your Vite configuration using the included `amplify.yml`.
 
