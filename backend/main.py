@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_matrix_admin import MatrixAdmin
-from backend.database import engine, Base, get_db, DATABASE_PATH
+from backend.database import engine, Base, get_db
 from backend.models import (
     User, Course, Module, Lesson, UserProgress, ChatMessage, DemoConfig, Question, 
     QuizAttempt, QuestionResponse, UserSession, CourseFeedback, Department, Team, 
