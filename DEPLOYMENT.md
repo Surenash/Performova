@@ -33,38 +33,27 @@ This system is split into two core halves: an **Active API** and an **Agentic Fa
 
 ---
 
-## 2. Backend Deployment (AWS App Runner + ECR)
+## 2. Backend Deployment (Amazon ECS Fargate + ECR)
 
-AWS App Runner is the easiest way to deploy a containerized API without managing servers.
+Amazon ECS Fargate is a serverless compute engine for containers.
 
 ### Step 2.1: Create an ECR Repository
 1. Navigate to **Amazon ECR** in the AWS Console.
 2. Create a repository named `performova-backend`.
 
-### Step 2.2: Database Migration Strategy (Alembic)
-
-*Warning:* In production, you must not use `init_db.py` as it drops and recreates tables.
-1. Ensure your CI/CD pipeline runs `alembic upgrade head` to apply database schema changes to the RDS instance.
-2. Ensure Alembic connects using the same `DATABASE_URL` as the backend.
-
-### Step 2.3: Setup GitHub Actions (CI/CD)
+### Step 2.2: Setup GitHub Actions (CI/CD)
 1. In your GitHub repository, go to **Settings** > **Secrets and variables** > **Actions**.
 2. Add the following secrets:
    - `AWS_ACCESS_KEY_ID`: Your AWS Access Key.
    - `AWS_SECRET_ACCESS_KEY`: Your AWS Secret Key.
-3. Push to the `main` branch to trigger the `.github/workflows/backend-deploy.yml` workflow, which builds and pushes the image to ECR.
+3. Push to the `main` branch to trigger the `.github/workflows/backend-deploy.yml` workflow.
 
-### Step 2.4: Create App Runner Service
-1. Navigate to **AWS App Runner** in the console.
-2. Click **Create service**.
-3. Choose **Amazon ECR** and select the `performova-backend` image. 
-4. Choose **Automatic** deployment (requires an IAM role).
-5. Configure the service:
-   - **Service name**: `performova-api`
-   - **Port**: `8000`
-   - **Environment Variables**: Add your `DATABASE_URL` (from step 1) and any other required keys (e.g., `GEMINI_API_KEY`).
-6. Create and deploy.
-7. Once deployed, note the **Default domain** URL (e.g., `https://xxxx.ap-south-1.awsapprunner.com`).
+### Step 2.3: Create ECS Cluster and Service
+1. Create an ECS Cluster named `performova-cluster` in the Mumbai (`ap-south-1`) region.
+2. Define a Task Definition with the `performova-backend` image, port `8000`.
+3. Create a Service using the **Fargate** launch type.
+4. Configure the service with your `DATABASE_URL` as an Environment Variable.
+5. Ensure the Security Group allows inbound traffic on port `8000`.
 
 ---
 
