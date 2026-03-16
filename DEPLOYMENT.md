@@ -20,7 +20,8 @@ This guide outlines the steps to deploy the Performova LMS to AWS using a modern
 2. Click **Create database**.
 3. Choose **PostgreSQL** (version 15 or 16).
 4. Choose **Free tier** or **Production** depending on your needs.
-5. Set the **DB instance identifier**, **Master username**, and **Master password**.
+5. Under **Instance configuration**, select **Burstable classes** and choose **db.t4g** (e.g., `db.t4g.micro`). AWS Graviton (ARM64) instances are significantly cheaper and more performant than standard x86 instances.
+6. Set the **DB instance identifier**, **Master username**, and **Master password**.
 6. Ensure **Public access** is *No* (unless testing, then set your Security Group rules to allow your IP).
 7. Under **Additional configuration**, specify an initial database name (e.g., `performova`).
 8. Create the database. 
@@ -38,14 +39,20 @@ AWS App Runner is the easiest way to deploy a containerized API without managing
 1. Navigate to **Amazon ECR** in the AWS Console.
 2. Create a repository named `performova-backend`.
 
-### Step 2.2: Setup GitHub Actions (CI/CD)
+### Step 2.2: Database Migration Strategy (Alembic)
+
+*Warning:* In production, you must not use `init_db.py` as it drops and recreates tables.
+1. Ensure your CI/CD pipeline runs `alembic upgrade head` to apply database schema changes to the RDS instance.
+2. Ensure Alembic connects using the same `DATABASE_URL` as the backend.
+
+### Step 2.3: Setup GitHub Actions (CI/CD)
 1. In your GitHub repository, go to **Settings** > **Secrets and variables** > **Actions**.
 2. Add the following secrets:
    - `AWS_ACCESS_KEY_ID`: Your AWS Access Key.
    - `AWS_SECRET_ACCESS_KEY`: Your AWS Secret Key.
 3. Push to the `main` branch to trigger the `.github/workflows/backend-deploy.yml` workflow, which builds and pushes the image to ECR.
 
-### Step 2.3: Create App Runner Service
+### Step 2.4: Create App Runner Service
 1. Navigate to **AWS App Runner** in the console.
 2. Click **Create service**.
 3. Choose **Amazon ECR** and select the `performova-backend` image. 
@@ -76,4 +83,5 @@ AWS Amplify automatically detects your Vite configuration using the included `am
 - Your frontend is now available at the Amplify URL.
 - Your backend is running on App Runner.
 - Both are connected to the RDS PostgreSQL instance.
+- The infrastructure utilizes ARM64 architecture (Graviton) to optimize costs.
 - Any pushes to `main` will automatically deploy both frontend and backend!

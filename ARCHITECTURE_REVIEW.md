@@ -58,13 +58,13 @@ To prioritize **cost efficiency** while maintaining **acceptable performance**, 
     *   It should run on small, cheap App Runner or Fargate instances (e.g., 1 vCPU, 2GB RAM).
     *   *Workflow:* When a user uploads a video, the API generates a **Presigned S3 Post URL**. The frontend uploads the video *directly* to S3, bypassing the API entirely.
 
-2.  **Asynchronous Message Queue (Amazon SQS):**
-    *   Configure the S3 bucket to trigger an event notification to an Amazon SQS queue whenever a new video is uploaded.
+2.  **Asynchronous Message Queue & Worker (SQS/Celery + EC2):**
+    *   Configure the S3 bucket to trigger an event notification to an Amazon SQS queue whenever a new video is uploaded, or have the API push a task to a Celery queue (using Redis/SQS as a broker).
 
-3.  **Dedicated Worker Layer (EC2 Auto Scaling Group with Spot Instances):**
-    *   Instead of expensive, always-on Fargate tasks for processing, use an Auto Scaling Group (ASG) of Amazon EC2 instances to pull messages from the SQS queue.
-    *   **Cost Optimization:** Use **EC2 Spot Instances**. Spot instances offer up to a 90% discount compared to On-Demand pricing. Since video processing is asynchronous, if a Spot instance is interrupted, the message simply returns to the SQS queue to be processed by the next available instance.
-    *   **Instance Sizing:** Use instances optimized for compute and memory (e.g., `c6g.large` or `m6g.large` Graviton instances) only when work is available. Scale the ASG to 0 when the queue is empty.
+3.  **Dedicated Worker Layer (EC2 + Celery):**
+    *   Instead of expensive, always-on Fargate tasks for processing, run a dedicated worker (e.g., Celery) on an Amazon EC2 instance to pull messages from the queue.
+    *   **Cost Optimization:** Use **EC2 Spot Instances** if possible. Spot instances offer up to a 90% discount compared to On-Demand pricing.
+    *   **Instance Sizing (Graviton):** Use instances optimized for compute and memory, specifically AWS Graviton (ARM64) instances (e.g., `c6g.large` or `m6g.large`). They are significantly cheaper and more performant than standard x86 instances.
 
 ### 4.2 Alternative: Fully Managed Services (MediaConvert & Transcribe)
 
@@ -86,11 +86,16 @@ Instead of managing EC2 workers running FFmpeg and Whisper, you could use AWS ma
 | :--- | :--- | :--- | :--- |
 | **Frontend** | AWS Amplify | **AWS Amplify** | Keep: Cost-effective, CDN-backed. |
 | **API Backend** | AWS App Runner (Fat Container) | **AWS App Runner (Slim Container)** | Change: Remove media processing libraries to allow running on the smallest, cheapest instance size. |
-| **Database** | RDS PostgreSQL | **RDS PostgreSQL (Graviton)** | Keep: Standard. Use `db.t4g` instances for cost savings. |
+| **Database** | RDS PostgreSQL | **RDS PostgreSQL (Graviton)** | Keep: Standard. Use `db.t4g` (ARM64) instances for a ~20% cost savings and better performance. |
 | **Media Upload** | Via FastAPI to S3 | **Direct to S3 via Presigned URL** | Change: Prevents tying up API resources handling large file streams. |
-| **Media Processing** | Synchronous in API | **Async via SQS + EC2 Spot Worker** | Change: Prevents timeouts; massively reduces compute costs by utilizing cheap Spot instances only when needed. |
+| **Media Processing** | Synchronous in API | **Async via SQS/Celery + EC2 Worker** | Change: Prevents timeouts; massively reduces compute costs by utilizing cheap instances only when needed. |
 
-## 6. Required Code Changes for Implementation
+## 6. Database Migrations & Deployment
+
+**Assessment:** The current codebase uses `backend/init_db.py` to create tables, which often drops and recreates them. This is a massive risk for production.
+**Recommendation:** Implement a production-grade migration strategy using **Alembic**. During deployment (e.g., in the App Runner setup or a CI/CD pipeline), Alembic should run `alembic upgrade head` against the RDS instance.
+
+## 7. Required Code Changes for Implementation
 
 To implement the recommended architecture, the following changes to the codebase would be required (note: not implemented in this review):
 
