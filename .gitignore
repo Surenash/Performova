@@ -9,3 +9,7 @@ lms.db
 !.env.example
 venv/
 .venv
+aws_keys.json
+ecs-trust-policy.json
+task-def.json
+repopulate_db.py

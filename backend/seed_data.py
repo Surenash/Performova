@@ -1,266 +1,210 @@
 import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from backend.models import Course, DemoConfig, User, Department, Team, Module, Lesson, CourseAssignment
-from backend.auth import get_password_hash
+from backend.models import Course, Module, Lesson, Question, DemoConfig, User, Department, Team, CourseAssignment
 from datetime import datetime, timedelta
 
-# 1. Mock Courses
-# time converted to Integer (minutes)
+# Rich seed data for courses and modules
 COURSES_DATA = [
-  { "id": 1, "title": "Data Privacy 101", "category": "Compliance", "time": 15, "format": "interactive", "difficulty": "Beginner", "image": "https://picsum.photos/seed/privacy/400/200", "color": "bg-blue-100", "is_published": True },
-  { "id": 2, "title": "Effective Feedback", "category": "Leadership", "time": 30, "format": "video", "difficulty": "Intermediate", "image": "https://picsum.photos/seed/feedback/400/200", "color": "bg-purple-100", "is_published": True },
-  { "id": 3, "title": "Phishing Defense", "category": "Security", "time": 10, "format": "interactive", "difficulty": "Beginner", "image": "https://picsum.photos/seed/phishing/400/200", "color": "bg-red-100", "is_published": True },
-  { "id": 4, "title": "React Advanced", "category": "Technical", "time": 120, "format": "text", "difficulty": "Advanced", "image": "https://picsum.photos/seed/react/400/200", "color": "bg-cyan-100", "is_published": True },
-  { "id": 5, "title": "Company Culture", "category": "Onboarding", "time": 20, "format": "video", "difficulty": "Beginner", "image": "https://picsum.photos/seed/culture/400/200", "color": "bg-orange-100", "is_published": True },
-  { "id": 6, "title": "Secure Coding", "category": "Security", "time": 45, "format": "interactive", "difficulty": "Intermediate", "image": "https://picsum.photos/seed/secure/400/200", "color": "bg-emerald-100", "is_published": True },
-]
-
-# ... FLASHCARDS_DATA, SECURITY_SORT_DATA, PROTOCOL_MATCH_DATA, QUICK_QUIZ_DATA, CHAT_SCENARIO_DATA, DASHBOARD_DATA, CONTENT_READER_DATA, PHISHING_SIMULATOR_DATA remain same ...
-FLASHCARDS_DATA = [
-    { "front": "What is a firewall?", "back": "A network security device that monitors and filters incoming and outgoing network traffic based on an organization's security policies.", "category": "Network Security" },
-    { "front": "What is encryption?", "back": "The process of converting information into a secret code that hides the information's true meaning. Only authorized parties can decipher it.", "category": "Data Protection" },
-    { "front": "What is social engineering?", "back": "The psychological manipulation of people into performing actions or divulging confidential information, rather than using technical hacking.", "category": "Threat Awareness" },
-    { "front": "What is a VPN?", "back": "A Virtual Private Network creates an encrypted connection over the internet between a device and a network, protecting data in transit.", "category": "Network Security" },
-]
-
-SECURITY_SORT_DATA = [
-    { "id": "1", "text": "Using 'Password123' for all accounts", "category": "risk", "hint": "Reuse and weak patterns are easy to crack." },
-    { "id": "2", "text": "Enabling Multi-Factor Authentication (MFA)", "category": "safe", "hint": "Adds a critical layer of defense." },
-    { "id": "3", "text": "Leaving your laptop unlocked in a cafe", "category": "risk", "hint": "Physical access is a major vulnerability." },
-    { "id": "4", "text": "Updating software as soon as patches arrive", "category": "safe", "hint": "Patches fix known security holes." },
-    { "id": "5", "text": "Clicking 'Unsubscribe' in a spam email", "category": "risk", "hint": "Often confirms your email is active to spammers." },
-    { "id": "6", "text": "Using a unique passphrase for each service", "category": "safe", "hint": "Isolation prevents credential stuffing." },
-]
-
-PROTOCOL_MATCH_DATA = [
-    { "protocol": "HTTPS", "port": "Port 443" },
-    { "protocol": "SSH", "port": "Port 22" },
-    { "protocol": "FTP", "port": "Port 21" },
-]
-
-QUICK_QUIZ_DATA = [
-    { "question": "What is the first step in a phishing attack?", "options": ["Clicking a suspicious link", "Receiving a deceptive email", "Downloading malware", "Sharing your password"], "correctIndex": 1, "explanation": "Phishing starts with the attacker sending a deceptive email designed to look legitimate." },
-    { "question": "Which password is the most secure?", "options": ["password123", "MyDog'sName", "Tr0ub4dor&3", "j7$kL9!mNq2@xW"], "correctIndex": 3, "explanation": "Long, random passwords with mixed characters are the strongest against brute-force attacks." },
-    { "question": "What does 2FA stand for?", "options": ["Two-Factor Authentication", "Two-File Authorization", "Two-Form Access", "Two-Firewall Application"], "correctIndex": 0, "explanation": "Two-Factor Authentication adds a second layer of verification beyond just a password." },
-]
-
-CHAT_SCENARIO_DATA = {
-    "start": {
-        "attackerMessage": "Hi! This is Sarah from HR. We're having some trouble with the payroll system for your department. Could you help me verify your employee ID and just the last 4 digits of your SSN? I want to make sure you get paid on time!",
-        "options": [
-            { "text": "Sure, my ID is EMP442 and last 4 are 8821.", "isSecure": False, "feedback": "Never share sensitive identifiers over unsolicited chat, even if they mention payroll!" },
-            { "text": "Hi Sarah, can you tell me your official employee extension so I can call you back via the internal directory?", "isSecure": True, "feedback": "Great move! Verifying the identity through official channels is a top security practice.", "nextStageId": "verify" },
-            { "text": "I'm not comfortable sharing that here. I'll drop by the HR office later today to check.", "isSecure": True, "feedback": "Excellent! Choosing a secure, physical location for sensitive matters is very safe.", "nextStageId": "office" }
+    {
+        "title": "Cybersecurity Awareness 2024",
+        "description": "Essential security training for all employees covering phishing, social engineering, and password safety.",
+        "category": "Security",
+        "time": 45,
+        "format": "interactive",
+        "difficulty": "Beginner",
+        "image": "https://picsum.photos/seed/cyber/800/400",
+        "color": "indigo",
+        "modules": [
+            {
+                "title": "Module 1: Phishing Foundations",
+                "description": "Learn to identify common phishing tactics.",
+                "lessons": [
+                    {
+                        "title": "The Art of Deception",
+                        "type": "lesson",
+                        "content": "Phishing is a type of social engineering where an attacker sends a fraudulent message designed to trick a human victim into revealing sensitive information.",
+                        "estimated_time": 5
+                    },
+                    {
+                        "title": "Spot the Hook: Quiz",
+                        "type": "quiz",
+                        "questions": [
+                            {
+                                "type": "multiple_choice",
+                                "question_text": "Which of these is a common sign of a phishing email?",
+                                "config": {
+                                    "options": ["Urgent language", "Generic greeting", "Mismatched links", "All of the above"],
+                                    "correct_answer": "All of the above"
+                                }
+                            },
+                            {
+                                "type": "true_false",
+                                "question_text": "Company IT will often ask for your password via email for maintenance.",
+                                "config": {
+                                    "correct_answer": "False"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "title": "Module 2: Password Security",
+                "description": "Creating and managing strong credentials.",
+                "lessons": [
+                    {
+                        "title": "Complexity and Beyond",
+                        "type": "lesson",
+                        "content": "Long passphrases are better than short complex passwords.",
+                        "estimated_time": 5
+                    }
+                ]
+            }
         ]
     },
-    "verify": {
-        "attackerMessage": "Oh, I'm actually working remotely today and my extension is being forwarded. It's really urgent though, the payroll batch closes in 10 minutes!",
-        "options": [
-            { "text": "Okay, since it's urgent: 8821.", "isSecure": False, "feedback": "Urgency is a classic social engineering trick. Don't let pressure bypass your security protocols." },
-            { "text": "I understand, but company policy requires me to verify these details through our secure portal. I'll check it there.", "isSecure": True, "feedback": "Perfect. Relying on established secure portals instead of chat is exactly what you should do.", "nextStageId": "success" }
-        ]
-    },
-    "office": {
-        "attackerMessage": "Actually, there's a big meeting in HR all afternoon. If you don't do it now, your paycheck might be delayed until next week! Are you sure?",
-        "options": [
-            { "text": "Fine, I don't want to miss my pay. It's 8821.", "isSecure": False, "feedback": "The attacker used a 'paycheck delay' threat to scare you. Stay firm!" },
-            { "text": "Yes, I'm sure. I'll wait to speak with my manager first.", "isSecure": True, "feedback": "Solid choice. Involving management adds an extra layer of verification.", "nextStageId": "success" }
+    {
+        "title": "Data Privacy & GDPR",
+        "description": "Understand your responsibilities under global data protection regulations.",
+        "category": "Compliance",
+        "time": 30,
+        "format": "text",
+        "difficulty": "Intermediate",
+        "image": "https://picsum.photos/seed/privacy/800/400",
+        "color": "emerald",
+        "modules": [
+            {
+                "title": "Module 1: GDPR Principles",
+                "description": "The 7 core principles of GDPR.",
+                "lessons": [
+                    {
+                        "title": "Lawfulness, Fairness, and Transparency",
+                        "type": "lesson",
+                        "content": "Data processing must be lawful, fair, and transparent to the data subject.",
+                        "estimated_time": 10
+                    }
+                ]
+            }
         ]
     }
+]
+
+DEMO_DATA = {
+    "flashcards": [
+        { "front": "What is a firewall?", "back": "A network security device that monitors and filters traffic.", "category": "Network Security" },
+        { "front": "What is MFA?", "back": "Multi-Factor Authentication - requiring more than one piece of evidence to verify identity.", "category": "Access Control" }
+    ],
+    "security_sort": [
+        { "id": "1", "text": "Using a password manager", "category": "safe", "hint": "Highly recommended." },
+        { "id": "2", "text": "Writing your password on a sticky note", "category": "risk", "hint": "Physical security risk." }
+    ],
+    "protocol_match": [
+        { "protocol": "HTTPS", "port": "443" },
+        { "protocol": "SSH", "port": "22" },
+        { "protocol": "FTP", "port": "21" }
+    ],
+    "quick_quiz": [
+        { "question": "What does 2FA stand for?", "options": ["Two-Factor Authentication", "Two-File Access", "Two-Firewall Application"], "correctIndex": 0, "explanation": "It adds an extra layer of security." }
+    ]
 }
-
-DASHBOARD_DATA = {
-    "learner": {
-        "path_nodes": [
-            { "id": 1, "title": "Phishing 101", "status": "completed", "type": "lesson" },
-            { "id": 2, "title": "Password Security", "status": "completed", "type": "quiz" },
-            { "id": 3, "title": "Social Engineering", "status": "current", "type": "interactive" },
-            { "id": 4, "title": "Device Protection", "status": "locked", "type": "lesson" },
-            { "id": 5, "title": "Final Assessment", "status": "locked", "type": "quiz" },
-        ],
-        "continue_courses": [
-            { "id": 101, "title": "Data Privacy Essentials", "progress": 45, "lessonsLeft": 3 },
-            { "id": 102, "title": "Incident Response", "progress": 15, "lessonsLeft": 8 },
-        ]
-    },
-    "admin": {
-        "team": [
-            { "id": 1, "name": "Alice Johnson", "role": "Frontend Dev", "progress": 85, "status": "On Track", "avatar": "https://i.pravatar.cc/150?u=1", "coursesCompleted": 4 },
-            { "id": 2, "name": "Bob Smith", "role": "Backend Dev", "progress": 40, "status": "Overdue", "avatar": "https://i.pravatar.cc/150?u=2", "coursesCompleted": 2 },
-            { "id": 3, "name": "Charlie Davis", "role": "Designer", "progress": 100, "status": "Completed", "avatar": "https://i.pravatar.cc/150?u=3", "coursesCompleted": 6 },
-            { "id": 4, "name": "Diana Prince", "role": "Product Manager", "progress": 60, "status": "On Track", "avatar": "https://i.pravatar.cc/150?u=4", "coursesCompleted": 3 },
-            { "id": 5, "name": "Evan Wright", "role": "QA Engineer", "progress": 15, "status": "At Risk", "avatar": "https://i.pravatar.cc/150?u=5", "coursesCompleted": 1 },
-        ],
-        "activities": [
-            { "action": "Charlie Davis completed", "course": "Cybersecurity Awareness", "time": "2 hours ago", "color": "emerald" },
-            { "action": "Alice Johnson started", "course": "Project Management 101", "time": "4 hours ago", "color": "indigo" },
-            { "action": "Diana Prince earned badge", "course": "Week Warrior", "time": "6 hours ago", "color": "amber" },
-        ]
-    }
-}
-
-CONTENT_READER_DATA = [
-    {
-        "title": "What is Social Engineering?",
-        "content": "Social engineering is a manipulation technique that exploits human psychology rather than technical vulnerabilities. Attackers use deception to trick individuals into revealing confidential information, granting unauthorized access, or performing actions that compromise security.\n\nUnlike traditional hacking, social engineering targets the weakest link in any security system — the human element. Even the most sophisticated technical defenses can be bypassed by a well-crafted social engineering attack.\n\n**Key Principle:** Attackers exploit trust, fear, urgency, and authority to manipulate their targets. Understanding these psychological triggers is the first step in defending against them."
-    },
-    {
-        "title": "Common Attack Vectors",
-        "content": "**Phishing** — The most prevalent form of social engineering. Attackers send fraudulent emails that appear to come from legitimate sources. These emails often contain malicious links or attachments designed to steal credentials or install malware.\n\n**Pretexting** — The attacker creates a fabricated scenario (pretext) to engage the victim. For example, posing as an IT technician who needs the employee's password to \"fix an issue.\"\n\n**Baiting** — Similar to phishing, but involves offering something enticing. This could be a USB drive labeled \"Salary Information\" left in a parking lot, or a free download that contains malware.\n\n**Tailgating** — An unauthorized person follows an authorized person into a restricted area. This exploits politeness and the tendency to hold doors open for others."
-    },
-    {
-        "title": "How to Protect Yourself",
-        "content": "**Verify Before Trusting** — Always verify the identity of someone requesting sensitive information, even if they claim to be from IT, management, or a known vendor. Use a separate communication channel to confirm.\n\n**Think Before You Click** — Hover over links before clicking to check the actual URL. Be suspicious of unexpected emails, especially those creating urgency or offering something too good to be true.\n\n**Report Suspicious Activity** — If something feels off, report it to your security team immediately. It's better to report a false positive than to ignore a real threat. Most organizations have a dedicated channel for reporting potential security incidents.\n\n**Stay Updated** — Social engineering tactics evolve constantly. Regular training and awareness programs help you recognize new attack patterns and stay vigilant. Remember: security is everyone's responsibility."
-    }
-]
-
-PHISHING_SIMULATOR_DATA = [
-    {
-        "id": "sender",
-        "label": "Suspicious Sender",
-        "description": "The email address comes from 'it-support.performova.net' instead of our official 'performova.com' domain.",
-        "position": "top-[-10px] left-[60px]"
-    },
-    {
-        "id": "urgency",
-        "label": "False Urgency",
-        "description": "Phrases like 'Action Required Immediately' or 'Within 24 Hours' are common pressure tactics used in phishing.",
-        "position": "top-[120px] left-[20px]"
-    },
-    {
-        "id": "link",
-        "label": "Mismatched Link",
-        "description": "Hovering shows 'secure-login-portal.co' which doesn't match our official company tools.",
-        "position": "bottom-[80px] left-[150px]"
-    }
-]
 
 async def seed_database(session: AsyncSession):
-    # Seed Departments and Teams
-    result = await session.execute(select(Department))
-    if not result.scalars().first():
-        print("Seeding Departments and Teams...")
-        dept_eng = Department(name="Engineering", description="Software development and operations")
-        dept_hr = Department(name="Human Resources", description="People and culture")
-        session.add_all([dept_eng, dept_hr])
-        await session.commit()
-        await session.refresh(dept_eng)
-        await session.refresh(dept_hr)
+    """
+    Seeds the database with missing standard entities.
+    Idempotent: Only adds if missing.
+    """
+    print("Checking for missing courses...")
+    for c_data in COURSES_DATA:
+        result = await session.execute(select(Course).filter(Course.title == c_data["title"]))
+        course = result.scalars().first()
         
-        team_fe = Team(name="Frontend", department_id=dept_eng.id)
-        team_be = Team(name="Backend", department_id=dept_eng.id)
-        team_rec = Team(name="Recruiting", department_id=dept_hr.id)
-        session.add_all([team_fe, team_be, team_rec])
-        await session.commit()
-
-    # Get IDs for assignment
-    res_dept = await session.execute(select(Department).filter(Department.name == "Cybersecurity"))
-    eng_dept_id = res_dept.scalars().first().id
-    res_team = await session.execute(select(Team).filter(Team.name == "Red Team"))
-    fe_team_id = res_team.scalars().first().id
-
-    # Seed Users
-    result = await session.execute(select(User))
-    existing_users = result.scalars().all()
-    if len(existing_users) <= 1: 
-        print("Seeding Users...")
-        team_members = DASHBOARD_DATA["admin"]["team"]
-        default_pwd = get_password_hash("admin")
-        
-        # Check if learner exists before adding
-        res_learner = await session.execute(select(User).filter(User.email == "learner@performa.com"))
-        if not res_learner.scalars().first():
-            learner_performa = User(
-                email="learner@performa.com", 
-                hashed_password=default_pwd, 
-                full_name="Valued Trainee", 
-                role="Learner",
-                department_id=eng_dept_id,
-                team_id=fe_team_id
+        if not course:
+            print(f"Adding course: {c_data['title']}")
+            course = Course(
+                title=c_data["title"],
+                description=c_data["description"],
+                category=c_data["category"],
+                time=c_data["time"],
+                format=c_data["format"],
+                difficulty=c_data["difficulty"],
+                image=c_data["image"],
+                color=c_data["color"],
+                is_published=True
             )
-            session.add(learner_performa)
-
-        for member in team_members:
-            email = member["name"].split(" ")[0].lower() + "@performa.com"
-            res_user = await session.execute(select(User).filter(User.email == email))
-            if not res_user.scalars().first():
-                new_user = User(
-                    email=email,
-                    hashed_password=default_pwd,
-                    full_name=member["name"],
-                    role="Learner",
-                    department_id=eng_dept_id,
-                    team_id=fe_team_id,
-                    streak_days=member["progress"] % 10,
-                    xp_points=member["coursesCompleted"] * 150
-                )
-                session.add(new_user)
-        await session.commit()
-
-    # Seed Courses if empty
-    result = await session.execute(select(Course))
-    existing_courses = result.scalars().all()
-    if not existing_courses:
-        print("Seeding Courses and Modules...")
-        for c in COURSES_DATA:
-            nc = Course(**c)
-            session.add(nc)
+            session.add(course)
             await session.commit()
-            await session.refresh(nc)
-            
-            # Add a default module for each course
-            mod = Module(
-                course_id=nc.id,
-                title="Introduction",
-                description=f"Initial lessons for {nc.title}",
-                order=1
-            )
-            session.add(mod)
-            await session.commit()
-            await session.refresh(mod)
-            
-            # Add a sample lesson
-            lesson = Lesson(
-                module_id=mod.id,
-                title="Welcome to the course",
-                content=f"This is the first lesson of {nc.title}.",
-                order=1,
-                estimated_time=5
-            )
-            session.add(lesson)
-            
-            # Create a sample assignment for the first user
-            res_u = await session.execute(select(User).limit(1))
-            u = res_u.scalars().first()
-            if u:
-                assignment = CourseAssignment(
-                    user_id=u.id,
-                    course_id=nc.id,
-                    is_mandatory=True,
-                    due_date=datetime.utcnow() + timedelta(days=7)
+            await session.refresh(course)
+
+            for i, m_data in enumerate(c_data["modules"]):
+                module = Module(
+                    course_id=course.id,
+                    title=m_data["title"],
+                    description=m_data["description"],
+                    order=i + 1
                 )
-                session.add(assignment)
-        await session.commit()
+                session.add(module)
+                await session.commit()
+                await session.refresh(module)
+
+                for j, l_data in enumerate(m_data["lessons"]):
+                    lesson = Lesson(
+                        module_id=module.id,
+                        title=l_data["title"],
+                        type=l_data["type"],
+                        content=l_data.get("content", ""),
+                        order=j + 1,
+                        estimated_time=l_data.get("estimated_time", 5)
+                    )
+                    session.add(lesson)
+                    await session.commit()
+                    await session.refresh(lesson)
+
+                    if "questions" in l_data:
+                        for k, q_data in enumerate(l_data["questions"]):
+                            question = Question(
+                                lesson_id=lesson.id,
+                                type=q_data["type"],
+                                question_text=q_data["question_text"],
+                                config=json.dumps(q_data["config"]),
+                                order=k + 1
+                            )
+                            session.add(question)
+            await session.commit()
+
+    print("Checking for missing DemoConfigs...")
+    # Generate dashboard_data dynamically to ensure IDs match
+    res_learner = await session.execute(select(User).filter(User.role == "Learner").limit(1))
+    learner = res_learner.scalars().first()
     
-    # Seed DemoConfigs
-    result = await session.execute(select(DemoConfig))
-    existing_demos = result.scalars().all()
-    if not existing_demos:
-        print("Seeding DemoConfigs...")
-        demos = [
-            ("flashcards", json.dumps(FLASHCARDS_DATA)),
-            ("security_sort", json.dumps(SECURITY_SORT_DATA)),
-            ("protocol_match", json.dumps(PROTOCOL_MATCH_DATA)),
-            ("quick_quiz", json.dumps(QUICK_QUIZ_DATA)),
-            ("chat_scenario", json.dumps(CHAT_SCENARIO_DATA)),
-            ("dashboard_data", json.dumps(DASHBOARD_DATA)),
-            ("content_reader", json.dumps(CONTENT_READER_DATA)),
-            ("phishing_simulator", json.dumps(PHISHING_SIMULATOR_DATA))
-        ]
-        for demo_type, config_json in demos:
-            nd = DemoConfig(demo_type=demo_type, config_json=config_json)
-            session.add(nd)
+    dashboard_data = {
+        "learner": {
+            "path_nodes": [
+                { "id": 1, "title": "Phishing Foundations", "status": "completed", "type": "lesson" },
+                { "id": 2, "title": "Spot the Hook", "status": "current", "type": "quiz" },
+                { "id": 3, "title": "Complexity and Beyond", "status": "locked", "type": "lesson" }
+            ],
+            "continue_courses": [
+                { "id": 1, "title": "Cybersecurity Awareness 2024", "progress": 33, "lessonsLeft": 2 },
+                { "id": 2, "title": "Data Privacy & GDPR", "progress": 0, "lessonsLeft": 1 }
+            ]
+        },
+        "admin": {
+            "team": [
+                { "id": learner.id if learner else 1, "name": learner.full_name if learner else "Alex Learner", "role": learner.role if learner else "Learner", "progress": 33, "status": "On Track", "avatar": f"https://i.pravatar.cc/150?u={learner.id if learner else 1}", "coursesCompleted": 0 }
+            ],
+            "activities": [
+                { "action": f"{learner.full_name if learner else 'Alex Learner'} started", "course": "Cybersecurity Awareness 2024", "time": "Just now", "color": "indigo" }
+            ]
+        }
+    }
+    
+    all_demos = {**DEMO_DATA, "dashboard_data": dashboard_data}
+    for d_type, d_config in all_demos.items():
+        result = await session.execute(select(DemoConfig).filter(DemoConfig.demo_type == d_type))
+        if not result.scalars().first():
+            print(f"Adding DemoConfig: {d_type}")
+            config = DemoConfig(demo_type=d_type, config_json=json.dumps(d_config))
+            session.add(config)
             
     await session.commit()
-    print("Database seeding completed.")
+    print("Database seeding check completed.")

@@ -92,11 +92,13 @@ async def startup_event():
         admin_user = result.scalars().first()
         
         if not admin_user:
-            print("No admin user found. Initializing database with seed data...")
+            print("No admin user found. Initializing core database entities...")
             await init_db_content(session)
-            print("Database initialization complete.")
-        else:
-            print("Admin user already exists. Skipping initialization.")
+        
+        # Always run seed_database to ensure courses and demo configs are present
+        print("Running database seeding check...")
+        await seed_database(session)
+        print("Database initialization/check complete.")
 
 # Include routes
 
