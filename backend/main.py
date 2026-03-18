@@ -19,6 +19,9 @@ from datetime import timedelta
 import asyncio
 import os
 
+from backend.seed_data import seed_database
+from backend.init_db import init_db_content
+
 app = FastAPI(title="Performova LMS API")
 
 # Add CORS for the frontend
@@ -29,6 +32,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+async def root():
+    return {
+        "message": "Performova LMS API is running.",
+        "docs": "/docs",
+        "admin_panel": "/admin"
+    }
 
 # Initialize Matrix Admin with the primary ASYNC engine
 admin = MatrixAdmin(
@@ -74,28 +85,18 @@ async def startup_event():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    # 2. Create initial superuser for Admin
+    # 2. Create initial superuser and seed data if empty
     async with AsyncSession(engine) as session:
         from sqlalchemy.future import select
         result = await session.execute(select(User).filter(User.email == "admin@performa.com"))
         admin_user = result.scalars().first()
+        
         if not admin_user:
-            hashed_pwd = get_password_hash("admin")
-            new_admin = User(
-                email="admin@performa.com",
-                hashed_password=hashed_pwd,
-                full_name="System Admin",
-                is_admin=True,
-                role="Admin"
-            )
-            session.add(new_admin)
-            await session.commit()
-            print("Initial admin user created: admin@performa.com / admin")
-            
-        # 3. Seed Data
-        # We'll skip seed_database here because we're using init_db.py for the schema enhancements
-        # from backend.seed_data import seed_database
-        # await seed_database(session)
+            print("No admin user found. Initializing database with seed data...")
+            await init_db_content(session)
+            print("Database initialization complete.")
+        else:
+            print("Admin user already exists. Skipping initialization.")
 
 # Include routes
 
