@@ -1,7 +1,7 @@
 import json
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from backend.models import Course, Module, Lesson, Question, DemoConfig, User, Department, Team, CourseAssignment
+from backend.models import Course, Module, Lesson, Question, DemoConfig, User, Department, Team, CourseAssignment, Organization
 from datetime import datetime, timedelta
 
 # Rich seed data for courses and modules
@@ -114,6 +114,12 @@ async def seed_database(session: AsyncSession):
     Idempotent: Only adds if missing.
     """
     print("Checking for missing courses...")
+    
+    # Try to get the default organization to link courses to it
+    res_org = await session.execute(select(Organization).filter(Organization.domain == "performova.com"))
+    org = res_org.scalars().first()
+    org_id = org.id if org else None
+
     for c_data in COURSES_DATA:
         result = await session.execute(select(Course).filter(Course.title == c_data["title"]))
         course = result.scalars().first()
@@ -129,13 +135,19 @@ async def seed_database(session: AsyncSession):
                 difficulty=c_data["difficulty"],
                 image=c_data["image"],
                 color=c_data["color"],
-                is_published=True
+                is_published=True,
+                organization_id=org_id
             )
             session.add(course)
             await session.commit()
             await session.refresh(course)
 
-            for i, m_data in enumerate(c_data["modules"]):
+        for i, m_data in enumerate(c_data["modules"]):
+            res_mod = await session.execute(select(Module).filter(Module.course_id == course.id, Module.title == m_data["title"]))
+            module = res_mod.scalars().first()
+            
+            if not module:
+                print(f"  Adding module: {m_data['title']}")
                 module = Module(
                     course_id=course.id,
                     title=m_data["title"],
@@ -146,7 +158,12 @@ async def seed_database(session: AsyncSession):
                 await session.commit()
                 await session.refresh(module)
 
-                for j, l_data in enumerate(m_data["lessons"]):
+            for j, l_data in enumerate(m_data["lessons"]):
+                res_lesson = await session.execute(select(Lesson).filter(Lesson.module_id == module.id, Lesson.title == l_data["title"]))
+                lesson = res_lesson.scalars().first()
+                
+                if not lesson:
+                    print(f"    Adding lesson: {l_data['title']}")
                     lesson = Lesson(
                         module_id=module.id,
                         title=l_data["title"],
@@ -159,8 +176,11 @@ async def seed_database(session: AsyncSession):
                     await session.commit()
                     await session.refresh(lesson)
 
-                    if "questions" in l_data:
-                        for k, q_data in enumerate(l_data["questions"]):
+                if "questions" in l_data:
+                    for k, q_data in enumerate(l_data["questions"]):
+                        res_q = await session.execute(select(Question).filter(Question.lesson_id == lesson.id, Question.question_text == q_data["question_text"]))
+                        if not res_q.scalars().first():
+                            print(f"      Adding question: {q_data['question_text'][:30]}...")
                             question = Question(
                                 lesson_id=lesson.id,
                                 type=q_data["type"],
@@ -169,7 +189,7 @@ async def seed_database(session: AsyncSession):
                                 order=k + 1
                             )
                             session.add(question)
-            await session.commit()
+        await session.commit()
 
     print("Checking for missing DemoConfigs...")
     # Generate dashboard_data dynamically to ensure IDs match
